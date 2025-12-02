@@ -3,85 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini x Magic Hub</title>
+    <title>Gemini x Nano Banana</title>
     
-    <!-- Icons & Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Markdown Parser -->
+    <!-- Libraries for Markdown & Code -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
 
     <style>
         :root {
-            --bg-dark: #09090b;
-            --bg-sidebar: #121214;
-            --bg-card: #1c1c1f;
-            --gemini-color: #8b5cf6; /* Purple */
-            --magic-color: #ec4899;  /* Pink for Magic Studio */
+            --bg-body: #050505;
+            --bg-sidebar: rgba(20, 20, 23, 0.7);
+            --bg-card: #18181b;
+            --gemini-color: #a855f7; /* Purple */
+            --banana-color: #facc15; /* Nano Banana Yellow */
             --text-main: #ffffff;
             --text-muted: #a1a1aa;
-            --border: #27272a;
+            --border: rgba(255, 255, 255, 0.1);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
 
         body {
-            font-family: 'Outfit', sans-serif;
-            background-color: var(--bg-dark);
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: var(--bg-body);
             color: var(--text-main);
             height: 100vh;
             display: flex;
             overflow: hidden;
+            /* Subtle animated gradient background */
+            background: radial-gradient(circle at top right, #1a1a2e 0%, #000000 100%);
         }
 
-        /* --- Sidebar Navigation --- */
+        /* --- SIDEBAR --- */
         .sidebar {
             width: 80px;
             background: var(--bg-sidebar);
+            backdrop-filter: blur(15px);
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding-top: 20px;
-            gap: 20px;
+            padding-top: 30px;
+            gap: 25px;
             z-index: 100;
         }
 
         .nav-btn {
             width: 50px;
             height: 50px;
-            border-radius: 12px;
+            border-radius: 14px;
             border: none;
             background: transparent;
             color: var(--text-muted);
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             cursor: pointer;
-            transition: 0.3s;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .nav-btn:hover { background: var(--bg-card); color: white; }
-        .nav-btn.active { background: var(--bg-card); color: white; }
+        .nav-btn:hover { background: rgba(255,255,255,0.1); color: white; transform: scale(1.1); }
+        .nav-btn.active { background: rgba(255,255,255,0.15); color: white; }
         
-        /* Active Indicators */
-        .nav-btn.active.gemini-tab { color: var(--gemini-color); box-shadow: 0 0 15px rgba(139, 92, 246, 0.2); }
-        .nav-btn.active.magic-tab { color: var(--magic-color); box-shadow: 0 0 15px rgba(236, 72, 153, 0.2); }
+        /* Specific Glows */
+        .nav-btn.active.gemini-tab { color: var(--gemini-color); box-shadow: 0 0 20px rgba(168, 85, 247, 0.3); }
+        .nav-btn.active.banana-tab { color: var(--banana-color); box-shadow: 0 0 20px rgba(250, 204, 21, 0.3); }
 
         .tooltip {
-            position: absolute; left: 60px; top: 12px;
-            background: #333; padding: 5px 10px;
-            border-radius: 4px; font-size: 0.8rem;
+            position: absolute; left: 65px;
+            background: #222; padding: 6px 12px;
+            border-radius: 6px; font-size: 0.85rem; font-weight: 500;
             opacity: 0; pointer-events: none; transition: 0.2s;
-            white-space: nowrap; z-index: 10;
+            white-space: nowrap; border: 1px solid #444;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
-        .nav-btn:hover .tooltip { opacity: 1; left: 70px; }
+        .nav-btn:hover .tooltip { opacity: 1; left: 75px; }
 
-        /* --- Main Content Area --- */
+        /* --- MAIN AREA --- */
         .main-content {
             flex: 1;
             position: relative;
-            overflow: hidden;
         }
 
         .view-section {
@@ -90,154 +98,153 @@
             display: none;
             flex-direction: column;
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.4s ease;
         }
-        
-        .view-section.active-view {
-            display: flex;
-            opacity: 1;
-        }
+        .view-section.active-view { display: flex; opacity: 1; }
 
-        /* --- HEADER STYLES --- */
+        /* --- HEADER --- */
         .header {
-            padding: 20px;
+            padding: 20px 30px;
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
-            gap: 10px;
-            background: rgba(9, 9, 11, 0.8);
+            gap: 12px;
+            background: rgba(5, 5, 5, 0.8);
             backdrop-filter: blur(10px);
         }
-        .header h2 { font-size: 1.2rem; font-weight: 600; }
+        .header h2 { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.5px; }
         .gemini-header i { color: var(--gemini-color); }
-        .magic-header i { color: var(--magic-color); }
+        .banana-header i { color: var(--banana-color); }
 
-        /* --- GEMINI CHAT STYLES --- */
+        /* --- CHAT UI --- */
         #chat-feed {
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
+            padding: 30px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 25px;
+            scroll-behavior: smooth;
         }
 
         .msg {
-            display: flex;
-            gap: 15px;
-            max-width: 800px;
-            margin: 0 auto;
-            width: 100%;
-            animation: slideUp 0.3s ease;
+            display: flex; gap: 18px; max-width: 900px; margin: 0 auto; width: 100%;
+            animation: slideUp 0.4s ease;
         }
         
         .avatar {
-            width: 35px; height: 35px; border-radius: 8px;
+            width: 40px; height: 40px; border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
+            flex-shrink: 0; font-size: 1.1rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
-        .user-av { background: #333; }
-        .ai-av { background: linear-gradient(135deg, var(--gemini-color), #6366f1); }
+        .user-av { background: #27272a; color: white; }
+        .ai-av { background: linear-gradient(135deg, var(--gemini-color), #4c1d95); color: white; }
 
-        .msg-text { line-height: 1.6; font-size: 1rem; color: #e4e4e7; }
+        .msg-content { flex: 1; line-height: 1.6; font-size: 1.05rem; color: #e4e4e7; }
+        .msg-content p { margin-top: 0; }
         
-        pre { background: #161618; padding: 15px; border-radius: 8px; overflow-x: auto; border: 1px solid #333; }
+        /* Code Blocks */
+        pre { background: #151517 !important; padding: 15px; border-radius: 10px; border: 1px solid #333; overflow-x: auto; }
+        code { font-family: 'Consolas', monospace; }
 
-        /* --- MAGIC GALLERY STYLES --- */
+        /* --- GALLERY UI (Nano Banana) --- */
         #gallery-feed {
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
+            padding: 30px;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
             align-content: start;
         }
 
-        .img-card {
-            background: var(--bg-card);
-            border-radius: 12px;
+        .banana-card {
+            background: #18181b;
+            border-radius: 16px;
             overflow: hidden;
             border: 1px solid var(--border);
             animation: fadeIn 0.5s ease;
             position: relative;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .img-card img {
-            width: 100%;
-            aspect-ratio: 1 / 1;
-            object-fit: cover;
-            display: block;
-            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             transition: transform 0.3s;
         }
-        .img-card img:hover { transform: scale(1.02); }
+        .banana-card:hover { transform: translateY(-5px); border-color: var(--banana-color); }
 
-        .img-info {
-            padding: 12px;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            border-top: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .banana-card img {
+            width: 100%; aspect-ratio: 1/1; object-fit: cover;
+            display: block; cursor: pointer;
         }
 
-        .download-btn {
-            background: transparent;
-            border: 1px solid #333;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.8rem;
+        .card-meta {
+            padding: 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            background: #18181b;
+            border-top: 1px solid #333;
         }
-        .download-btn:hover { background: var(--magic-color); color: white; border-color: var(--magic-color); }
+        .prompt-text { font-size: 0.9rem; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70%; }
+        
+        .dl-btn {
+            background: transparent; border: 1px solid #444; color: white;
+            width: 35px; height: 35px; border-radius: 8px; cursor: pointer;
+            transition: 0.2s; display: flex; align-items: center; justify-content: center;
+        }
+        .dl-btn:hover { background: var(--banana-color); color: black; border-color: var(--banana-color); }
 
-        /* --- INPUT AREAS --- */
-        .input-container {
-            padding: 20px;
-            background: var(--bg-dark);
-            display: flex;
-            justify-content: center;
-            border-top: 1px solid var(--border);
+        /* --- INPUTS --- */
+        .input-area {
+            padding: 25px;
+            background: linear-gradient(to top, var(--bg-body) 80%, transparent);
+            display: flex; justify-content: center;
         }
 
-        .input-box {
-            width: 100%; max-width: 800px;
-            background: var(--bg-sidebar);
+        .input-wrapper {
+            width: 100%; max-width: 900px;
+            background: #18181b;
             border: 1px solid var(--border);
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 8px;
-            display: flex;
-            align-items: center;
+            display: flex; align-items: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.4);
             transition: 0.3s;
         }
 
-        .gemini-input:focus-within { border-color: var(--gemini-color); box-shadow: 0 0 15px rgba(139, 92, 246, 0.1); }
-        .magic-input:focus-within { border-color: var(--magic-color); box-shadow: 0 0 15px rgba(236, 72, 153, 0.1); }
+        .gemini-wrapper:focus-within { border-color: var(--gemini-color); box-shadow: 0 0 20px rgba(168, 85, 247, 0.2); }
+        .banana-wrapper:focus-within { border-color: var(--banana-color); box-shadow: 0 0 20px rgba(250, 204, 21, 0.2); }
 
         input {
             flex: 1; background: transparent; border: none;
-            color: white; padding: 10px; font-size: 1rem;
+            color: white; padding: 12px; font-size: 1rem; font-family: inherit;
         }
 
         .send-btn {
-            width: 40px; height: 40px; border: none; border-radius: 8px;
-            cursor: pointer; color: white; display: flex; align-items: center; justify-content: center;
-            margin-left: 5px; transition: 0.2s;
+            width: 45px; height: 45px; border: none; border-radius: 12px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            margin-left: 8px; font-size: 1.1rem; transition: 0.2s;
         }
         
-        .g-btn { background: var(--gemini-color); }
-        .m-btn { background: var(--magic-color); }
+        .btn-g { background: var(--gemini-color); color: white; }
+        .btn-b { background: var(--banana-color); color: black; }
         .send-btn:hover { transform: scale(1.05); }
 
-        .loader { text-align: center; color: var(--text-muted); padding: 10px; display: none; }
-        
-        @keyframes slideUp { from {opacity: 0; transform: translateY(10px);} to {opacity: 1; transform: translateY(0);} }
+        /* Loading Spinner */
+        .loader {
+            display: none; justify-content: center; align-items: center;
+            gap: 10px; padding: 10px; color: var(--text-muted); width: 100%;
+            position: absolute; bottom: 90px;
+        }
+
+        @keyframes slideUp { from {opacity: 0; transform: translateY(20px);} to {opacity: 1; transform: translateY(0);} }
         @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
+
+        /* Modal for Full Image */
+        .lightbox {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+            width: 100%; height: 100%; background: rgba(0,0,0,0.9);
+            justify-content: center; align-items: center;
+        }
+        .lightbox img { max-width: 90%; max-height: 90%; border-radius: 8px; box-shadow: 0 0 50px rgba(250,204,21,0.2); }
+        .close-lb { position: absolute; top: 20px; right: 40px; color: white; font-size: 40px; cursor: pointer; }
 
     </style>
 </head>
@@ -245,183 +252,209 @@
 
 <!-- SIDEBAR -->
 <nav class="sidebar">
+    <!-- Gemini Tab -->
     <button class="nav-btn active gemini-tab" onclick="switchTab('gemini')">
         <i class="fa-solid fa-comment-dots"></i>
-        <div class="tooltip">Chat</div>
+        <div class="tooltip">Gemini Chat</div>
     </button>
-    <button class="nav-btn magic-tab" onclick="switchTab('magic')">
+    
+    <!-- Nano Banana Tab -->
+    <button class="nav-btn banana-tab" onclick="switchTab('banana')">
         <i class="fa-solid fa-wand-magic-sparkles"></i>
-        <div class="tooltip">Magic</div>
+        <div class="tooltip">Nano Banana</div>
     </button>
 </nav>
 
 <!-- MAIN CONTENT -->
 <main class="main-content">
 
-    <!-- VIEW 1: GEMINI CHAT -->
+    <!-- === VIEW 1: GEMINI === -->
     <section id="view-gemini" class="view-section active-view">
         <div class="header gemini-header">
-            <i class="fa-solid fa-sparkles"></i>
-            <h2>Gemini Pro</h2>
+            <i class="fa-solid fa-brain"></i>
+            <h2>Gemini Chat</h2>
         </div>
         
         <div id="chat-feed">
             <div class="msg">
                 <div class="avatar ai-av"><i class="fa-solid fa-robot"></i></div>
-                <div class="msg-text">Hello! I am Gemini. I can help with text and coding.</div>
+                <div class="msg-content">Hello! I am Gemini. I can explain code, write stories, and answer questions.</div>
             </div>
         </div>
 
-        <div class="loader" id="gemini-loader"><i class="fa-solid fa-circle-notch fa-spin"></i> Typing...</div>
+        <div class="loader" id="loader-g">
+            <i class="fa-solid fa-circle-notch fa-spin"></i> Thinking...
+        </div>
 
-        <div class="input-container">
-            <div class="input-box gemini-input">
-                <input type="text" id="geminiPrompt" placeholder="Message Gemini..." autocomplete="off">
-                <button class="send-btn g-btn" onclick="sendGemini()"><i class="fa-solid fa-paper-plane"></i></button>
+        <div class="input-area">
+            <div class="input-wrapper gemini-wrapper">
+                <input type="text" id="input-g" placeholder="Ask Gemini..." autocomplete="off">
+                <button class="send-btn btn-g" onclick="sendGemini()"><i class="fa-solid fa-paper-plane"></i></button>
             </div>
         </div>
     </section>
 
-    <!-- VIEW 2: MAGIC STUDIO IMAGE -->
-    <section id="view-magic" class="view-section">
-        <div class="header magic-header">
-            <i class="fa-solid fa-wand-magic-sparkles"></i>
-            <h2>Magic Studio AI</h2>
+    <!-- === VIEW 2: NANO BANANA === -->
+    <section id="view-banana" class="view-section">
+        <div class="header banana-header">
+            <i class="fa-solid fa-bolt"></i>
+            <h2>Nano Banana</h2>
         </div>
 
         <div id="gallery-feed">
-            <!-- Images will appear here -->
+            <!-- Nano Banana Images will load here -->
         </div>
         
-        <div class="loader" id="magic-loader" style="position:absolute; bottom: 80px; width:100%; text-align:center;">
-            <i class="fa-solid fa-spinner fa-spin"></i> Creating Magic...
+        <div class="loader" id="loader-b">
+            <i class="fa-solid fa-spinner fa-spin" style="color:var(--banana-color)"></i> 
+            <span style="color:var(--banana-color)">Nano Banana is generating...</span>
         </div>
 
-        <div class="input-container">
-            <div class="input-box magic-input">
-                <input type="text" id="magicPrompt" placeholder="Describe an image (e.g., A futuristic city)..." autocomplete="off">
-                <button class="send-btn m-btn" onclick="generateMagic()"><i class="fa-solid fa-bolt"></i></button>
+        <div class="input-area">
+            <div class="input-wrapper banana-wrapper">
+                <input type="text" id="input-b" placeholder="Describe image for Nano Banana..." autocomplete="off">
+                <button class="send-btn btn-b" onclick="generateBanana()"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
             </div>
         </div>
     </section>
 
 </main>
 
-<script>
-    // --- TAB SWITCHING ---
-    function switchTab(tabName) {
-        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-        document.querySelector(`.${tabName}-tab`).classList.add('active');
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="this.style.display='none'">
+    <span class="close-lb">&times;</span>
+    <img id="lb-img" src="">
+</div>
 
+<script>
+    // --- STATE MANAGEMENT ---
+    let currentMode = 'gemini';
+
+    // --- INIT ---
+    marked.setOptions({
+        highlight: (code, lang) => hljs.getLanguage(lang) ? hljs.highlight(code, { language: lang }).value : hljs.highlightAuto(code).value
+    });
+
+    // --- TABS ---
+    function switchTab(mode) {
+        currentMode = mode;
+        // Buttons
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelector(`.${mode}-tab`).classList.add('active');
+        // Views
         document.querySelectorAll('.view-section').forEach(view => view.classList.remove('active-view'));
-        document.getElementById(`view-${tabName}`).classList.add('active-view');
+        document.getElementById(`view-${mode}`).classList.add('active-view');
     }
 
     // --- GEMINI LOGIC ---
-    const geminiInput = document.getElementById('geminiPrompt');
-    const chatFeed = document.getElementById('chat-feed');
-    const gLoader = document.getElementById('gemini-loader');
+    const inputG = document.getElementById('input-g');
+    const feedG = document.getElementById('chat-feed');
+    const loadG = document.getElementById('loader-g');
 
-    geminiInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendGemini(); });
+    inputG.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendGemini(); });
 
     async function sendGemini() {
-        const text = geminiInput.value.trim();
-        if(!text) return;
+        const txt = inputG.value.trim();
+        if(!txt) return;
 
-        addChatMessage(text, 'user');
-        geminiInput.value = '';
-        gLoader.style.display = 'block';
-        chatFeed.scrollTop = chatFeed.scrollHeight;
+        // UI Updates
+        appendMsg(txt, 'user');
+        inputG.value = '';
+        loadG.style.display = 'flex';
+        feedG.scrollTop = feedG.scrollHeight;
 
         try {
-            const res = await fetch(`https://api.xyro.site/ai/gemini?prompt=${encodeURIComponent(text)}`);
+            const res = await fetch(`https://api.xyro.site/ai/gemini?prompt=${encodeURIComponent(txt)}`);
             const data = await res.json();
             
-            let reply = "Error parsing response";
-            if(data.result?.parts?.[0]?.text) reply = data.result.parts[0].text;
-            else if(data.response) reply = data.response;
-            else if(data.message) reply = data.message;
+            let aiText = "Error.";
+            if(data.result?.parts?.[0]?.text) aiText = data.result.parts[0].text;
+            else if(data.response) aiText = data.response;
+            else if(data.message) aiText = data.message;
 
-            addChatMessage(reply, 'ai');
+            loadG.style.display = 'none';
+            appendMsg(aiText, 'ai');
 
         } catch(e) {
-            addChatMessage("Connection Error.", 'ai');
-        } finally {
-            gLoader.style.display = 'none';
+            loadG.style.display = 'none';
+            appendMsg("Connection failed.", 'ai');
         }
     }
 
-    function addChatMessage(text, sender) {
+    function appendMsg(text, role) {
         const div = document.createElement('div');
         div.className = 'msg';
         
-        const avatar = sender === 'user' 
+        const avatar = role === 'user' 
             ? '<div class="avatar user-av"><i class="fa-solid fa-user"></i></div>'
             : '<div class="avatar ai-av"><i class="fa-solid fa-robot"></i></div>';
         
-        const content = sender === 'user' ? text : marked.parse(text);
+        const content = role === 'user' ? text : marked.parse(text);
 
-        div.innerHTML = `${avatar}<div class="msg-text">${content}</div>`;
-        chatFeed.appendChild(div);
-        chatFeed.scrollTop = chatFeed.scrollHeight;
+        div.innerHTML = `${avatar}<div class="msg-content">${content}</div>`;
+        feedG.appendChild(div);
+        feedG.scrollTop = feedG.scrollHeight;
     }
 
-    // --- MAGIC STUDIO LOGIC (NEW API) ---
-    const magicInput = document.getElementById('magicPrompt');
-    const galleryFeed = document.getElementById('gallery-feed');
-    const mLoader = document.getElementById('magic-loader');
+    // --- NANO BANANA LOGIC (Using Magic Studio API) ---
+    const inputB = document.getElementById('input-b');
+    const feedB = document.getElementById('gallery-feed');
+    const loadB = document.getElementById('loader-b');
 
-    magicInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') generateMagic(); });
+    inputB.addEventListener('keypress', (e) => { if(e.key === 'Enter') generateBanana(); });
 
-    async function generateMagic() {
-        const prompt = magicInput.value.trim();
+    async function generateBanana() {
+        const prompt = inputB.value.trim();
         if(!prompt) return;
 
-        magicInput.value = '';
-        mLoader.style.display = 'block';
+        inputB.value = '';
+        loadB.style.display = 'flex';
 
-        // NEW API ENDPOINT
+        // Using Magic Studio API as requested, but under "Nano Banana" name
         const url = `https://api.xyro.site/ai/magic-studio?prompt=${encodeURIComponent(prompt)}`;
 
         const img = new Image();
         img.src = url;
-
+        
         img.onload = function() {
-            mLoader.style.display = 'none';
-            addCardToGallery(url, prompt);
-        };
+            loadB.style.display = 'none';
+            addBananaCard(url, prompt);
+        }
         
         img.onerror = function() {
-            mLoader.style.display = 'none';
-            // Sometimes API fails on first try or has CORS, we try to show it anyway or alert
-            alert("API response slow. If image doesn't appear, try again.");
-            addCardToGallery(url, prompt); // Try forcing display
-        };
+            loadB.style.display = 'none';
+            // Force add it anyway (sometimes API has CORS issues but image exists)
+            addBananaCard(url, prompt);
+        }
     }
 
-    function addCardToGallery(url, prompt) {
+    function addBananaCard(url, prompt) {
         const card = document.createElement('div');
-        card.className = 'img-card';
+        card.className = 'banana-card';
         card.innerHTML = `
-            <img src="${url}" alt="${prompt}" onclick="window.open('${url}', '_blank')">
-            <div class="img-info">
-                <span>${prompt.length > 20 ? prompt.substring(0,20)+'...' : prompt}</span>
-                <button class="download-btn" onclick="downloadImage('${url}')">
-                    <i class="fa-solid fa-download"></i>
-                </button>
+            <img src="${url}" onclick="openLightbox('${url}')">
+            <div class="card-meta">
+                <span class="prompt-text">${prompt}</span>
+                <button class="dl-btn" onclick="downloadImg('${url}')"><i class="fa-solid fa-download"></i></button>
             </div>
         `;
-        galleryFeed.insertBefore(card, galleryFeed.firstChild);
+        feedB.insertBefore(card, feedB.firstChild);
     }
 
-    async function downloadImage(url) {
+    // --- UTILS ---
+    function openLightbox(url) {
+        document.getElementById('lb-img').src = url;
+        document.getElementById('lightbox').style.display = 'flex';
+    }
+
+    async function downloadImg(url) {
         try {
             const response = await fetch(url);
             const blob = await response.blob();
             const blobUrl = URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.href = blobUrl;
-            link.download = "magic-art-" + Date.now() + ".jpg";
+            link.download = "nano-banana-" + Date.now() + ".jpg";
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
