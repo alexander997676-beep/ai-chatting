@@ -98,6 +98,7 @@
         .view {
             position: absolute; inset: 0; display: none; flex-direction: column;
             opacity: 0; transform: translateY(10px); transition: 0.4s var(--ease);
+            padding-bottom: 140px; /* Space for dock */
         }
         .view.active { display: flex; opacity: 1; transform: translateY(0); }
 
@@ -156,11 +157,24 @@
         }
         .art-card:hover .art-meta { transform: translateY(0); }
         
-        /* Input Area */
+        /* Input Area - Modified for FAZ */
         .input-dock {
-            padding: 24px; display: flex; justify-content: center;
-            background: linear-gradient(to top, var(--bg-deep) 40%, transparent);
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            padding: 15px 24px 24px 24px; 
+            display: flex; flex-direction: column; align-items: center; /* Stack items */
+            background: linear-gradient(to top, var(--bg-deep) 60%, transparent);
             z-index: 50;
+        }
+
+        .faz-signature {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+            opacity: 0.8;
         }
 
         .dock-inner {
@@ -221,10 +235,11 @@
 
         /* Loader */
         .loader {
-            position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%);
+            position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%);
             background: #000; border: 1px solid var(--border); padding: 8px 16px;
             border-radius: 20px; font-size: 0.85rem; color: var(--text-muted);
             display: none; align-items: center; gap: 8px; box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            z-index: 60;
         }
 
         /* Responsive */
@@ -234,6 +249,7 @@
             .prompt-grid { grid-template-columns: 1fr; }
             .top-bar { padding: 15px 20px; }
             .menu-toggle { display: block !important; margin-right: 15px; }
+            .input-dock { padding: 15px; }
         }
         .menu-toggle { display: none; background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer; }
 
@@ -304,6 +320,9 @@
 
     <!-- INPUT DOCK -->
     <div class="input-dock">
+        <!-- ADDED NAME HERE -->
+        <div class="faz-signature">MADE BY FAZ</div>
+        
         <div class="dock-inner" id="dock">
             <button class="dock-btn" onclick="openPrompts()"><i class="fa-solid fa-lightbulb"></i></button>
             <textarea id="prompt-in" rows="1" placeholder="Type a message..."></textarea>
