@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#050505">
+    <title>Galary Agency | Aether</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="https://n.f-a-k.workers.dev/geminigeneratedimage5497qx5497qx54972.png" type="image/png">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        /* --- 🌑 AETHER VARIABLES --- */
+        :root {
+            --bg: #030303;
+            --surface: #0f0f0f;
+            --text-main: #f0f0f0;
+            --text-muted: #666;
+            --accent: #FFD700;
+            --accent-glow: rgba(255, 215, 0, 0.4);
+            --border: rgba(255, 255, 255, 0.08);
+            --font-head: 'Cinzel', serif;
+            --font-body: 'Space Grotesk', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
+        
+        body {
+            background-color: var(--bg); color: var(--text-main);
+            font-family: var(--font-body); overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* --- 🎞️ FILM GRAIN TEXTURE --- */
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 9000; opacity: 0.05;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* --- 🖱️ FLUID CURSOR --- */
+        .cursor-dot, .cursor-circle {
+            position: fixed; top: 0; left: 0; transform: translate(-50%, -50%);
+            border-radius: 50%; pointer-events: none; z-index: 10000;
+            mix-blend-mode: difference;
+        }
+        .cursor-dot { width: 6px; height: 6px; background: white; }
+        .cursor-circle {
+            width: 40px; height: 40px; border: 1px solid rgba(255,255,255,0.5);
+            transition: width 0.3s, height 0.3s, background 0.3s;
+        }
+        .cursor-circle.hover { width: 80px; height: 80px; background: rgba(255,255,255,0.1); border-color: transparent; backdrop-filter: blur(2px); }
+        
+        @media(hover: none) { .cursor-dot, .cursor-circle { display: none; } * { cursor: auto; } }
+
+        /* --- HEADER --- */
+        header {
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
+            padding: 30px 50px; display: flex; justify-content: space-between; align-items: center;
+            background: linear-gradient(to bottom, rgba(3,3,3,0.95), transparent);
+            transition: transform 0.4s;
+        }
+        header.hide { transform: translateY(-100%); }
+
+        .brand { display: flex; align-items: center; gap: 15px; text-decoration: none; position: relative; }
+        .brand-logo { 
+            width: 50px; height: 50px; border-radius: 50%; object-fit: cover; 
+            border: 1px solid rgba(255,255,255,0.2); 
+        }
+        .brand-txt { font-family: var(--font-head); font-size: 20px; color: white; letter-spacing: 2px; }
+        .brand-sub { font-size: 10px; color: var(--accent); letter-spacing: 4px; position: absolute; bottom: -12px; left: 65px; }
+
+        /* --- MAGNETIC BUTTONS --- */
+        .magnetic-wrap { display: inline-block; position: relative; }
+        .magnetic-btn {
+            background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+            color: white; padding: 12px 24px; border-radius: 50px;
+            font-size: 12px; font-weight: 700; letter-spacing: 1px;
+            cursor: pointer; transition: 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .magnetic-btn:hover { background: white; color: black; box-shadow: 0 0 20px rgba(255,255,255,0.3); }
+
+        /* --- HERO --- */
+        .hero {
+            height: 70vh; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; position: relative; z-index: 10;
+        }
+        .hero h1 {
+            font-family: var(--font-head); font-size: clamp(3rem, 7vw, 6rem);
+            margin-bottom: 30px; line-height: 0.9;
+            background: linear-gradient(to bottom, #fff, #666);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            opacity: 0; animation: fadeUp 1s forwards 0.5s;
+        }
+        @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } from { opacity: 0; transform: translateY(30px); } }
+
+        .search-container {
+            position: relative; width: 100%; max-width: 500px;
+            opacity: 0; animation: fadeUp 1s forwards 0.8s;
+        }
+        .input-aether {
+            width: 100%; background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.3);
+            padding: 15px 0; color: white; font-size: 20px; font-family: var(--font-body);
+            text-align: center; transition: 0.3s;
+        }
+        .input-aether:focus { outline: none; border-color: var(--accent); letter-spacing: 1px; }
+        .input-aether::placeholder { color: #444; font-weight: 300; }
+
+        /* --- GRID --- */
+        .grid-container { padding: 0 40px 100px; }
+        .grid {
+            column-count: 4; column-gap: 30px; max-width: 1800px; margin: 0 auto;
+        }
+        @media (max-width: 1200px) { .grid { column-count: 3; } }
+        @media (max-width: 768px) { .grid { column-count: 2; column-gap: 15px; padding: 0 10px; } header { padding: 20px; } }
+
+        .card {
+            break-inside: avoid; margin-bottom: 30px; position: relative;
+            background: var(--surface); border-radius: 4px; overflow: hidden;
+            opacity: 0; transform: translateY(50px); transition: 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .card.visible { opacity: 1; transform: translateY(0); }
+
+        .card img {
+            width: 100%; display: block; opacity: 0.8; transition: 0.5s;
+        }
+        .card:hover img { opacity: 1; transform: scale(1.03); }
+
+        /* Card Meta */
+        .card-info {
+            position: absolute; bottom: 0; left: 0; width: 100%; padding: 20px;
+            background: linear-gradient(to top, black, transparent);
+            display: flex; justify-content: space-between; align-items: flex-end;
+            opacity: 0; transform: translateY(10px); transition: 0.3s;
+        }
+        .card:hover .card-info { opacity: 1; transform: translateY(0); }
+        
+        .save-icon { font-size: 18px; color: white; cursor: pointer; transition: 0.2s; }
+        .save-icon:hover { color: var(--accent); transform: scale(1.2); }
+
+        /* --- CUSTOM CONTEXT MENU --- */
+        #ctx-menu {
+            position: fixed; background: rgba(20,20,20,0.95); backdrop-filter: blur(10px);
+            border: 1px solid var(--border); border-radius: 8px;
+            padding: 8px 0; width: 200px; z-index: 11000;
+            opacity: 0; pointer-events: none; transition: 0.2s; transform: scale(0.95);
+        }
+        #ctx-menu.active { opacity: 1; pointer-events: auto; transform: scale(1); }
+        
+        .ctx-item {
+            padding: 10px 20px; font-size: 12px; color: #ccc; cursor: pointer;
+            display: flex; justify-content: space-between;
+        }
+        .ctx-item:hover { background: rgba(255,255,255,0.1); color: white; }
+        .shortcut { color: #555; font-size: 10px; }
+
+        /* --- MODAL --- */
+        .modal {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.98); z-index: 6000; display: none;
+            flex-direction: column; justify-content: center; align-items: center;
+        }
+        .modal img {
+            max-height: 80vh; max-width: 90vw; border: 1px solid #333;
+            box-shadow: 0 0 100px rgba(255, 215, 0, 0.05);
+        }
+        .modal-bar {
+            margin-top: 30px; display: flex; gap: 20px;
+        }
+
+        /* --- LOADING SPINNER --- */
+        .spinner {
+            margin: 50px auto; width: 40px; height: 40px; border: 2px solid rgba(255,255,255,0.1);
+            border-top-color: var(--accent); border-radius: 50%;
+            animation: spin 1s linear infinite; display: none;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="noise-overlay"></div>
+    <div class="cursor-dot" id="c-dot"></div>
+    <div class="cursor-circle" id="c-circle"></div>
+
+    <header id="navbar">
+        <a href="#" class="brand" data-hover>
+            <img src="https://n.f-a-k.workers.dev/geminigeneratedimage5497qx5497qx54972.png" class="brand-logo">
+            <div class="brand-txt">GALARY</div>
+            <div class="brand-sub">AGENCY</div>
+        </a>
+
+        <div class="magnetic-wrap">
+            <button class="magnetic-btn" onclick="showSaved()" data-hover>
+                <i class="far fa-bookmark"></i> COLLECTION
+            </button>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>Visuals from<br>the Aether.</h1>
+        <div class="search-container">
+            <input type="text" class="input-aether" id="search-input" placeholder="Type to search... (/)" data-hover>
+        </div>
+    </section>
+
+    <div class="grid-container">
+        <div class="grid" id="grid"></div>
+        <div class="spinner" id="spinner"></div>
+    </div>
+
+    <!-- Context Menu -->
+    <div id="ctx-menu">
+        <div class="ctx-item" onclick="location.reload()">Refresh <span class="shortcut">R</span></div>
+        <div class="ctx-item" onclick="document.getElementById('search-input').focus()">Search <span class="shortcut">/</span></div>
+        <div class="ctx-item" style="border-top:1px solid #222; margin-top:5px; padding-top:10px; color:var(--accent);">Galary Agency Pro</div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="modal">
+        <img src="" id="modal-img">
+        <div class="modal-bar">
+            <button class="magnetic-btn" onclick="downloadImg()" data-hover>DOWNLOAD</button>
+            <button class="magnetic-btn" onclick="closeModal()" data-hover>CLOSE (ESC)</button>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIG ---
+        const API_URL = "https://api.xyro.site/search/pinterest?q=";
+        const grid = document.getElementById('grid');
+        const spinner = document.getElementById('spinner');
+        let page = 1;
+        let currentQuery = 'Cinematic Photography'; // Default
+        let loading = false;
+        let currentModalUrl = "";
+
+        // --- MAGNETIC BUTTONS LOGIC ---
+        const magnets = document.querySelectorAll('.magnetic-btn');
+        magnets.forEach(btn => {
+            btn.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                btn.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
+            });
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = 'translate(0, 0)';
+            });
+        });
+
+        // --- CURSOR LOGIC ---
+        const dot = document.getElementById('c-dot');
+        const circle = document.getElementById('c-circle');
+        
+        document.addEventListener('mousemove', (e) => {
+            dot.style.left = e.clientX + 'px';
+            dot.style.top = e.clientY + 'px';
+            
+            // Delay for circle
+            circle.animate({ left: `${e.clientX}px`, top: `${e.clientY}px` }, { duration: 500, fill: "forwards" });
+        });
+
+        document.addEventListener('mouseover', (e) => {
+            if(e.target.hasAttribute('data-hover') || e.target.closest('[data-hover]')) {
+                circle.classList.add('hover');
+            } else {
+                circle.classList.remove('hover');
+            }
+        });
+
+        // --- FEED & INFINITE SCROLL ---
+        window.onload = () => loadImages(true);
+
+        async function loadImages(reset = false) {
+            if (loading) return;
+            loading = true;
+            spinner.style.display = 'block';
+
+            if (reset) {
+                grid.innerHTML = '';
+                // Mix for first load
+                const mix = ['Imran Khan', 'Cyberpunk City', 'Black and Gold Abstract'];
+                await fetchMulti(mix);
+            } else {
+                // Infinite scroll load (Simulated variation)
+                const variations = [' Architecture', ' Portrait', ' Art', ' Wallpaper'];
+                const v = variations[Math.floor(Math.random() * variations.length)];
+                await fetchImages(currentQuery + v);
+            }
+
+            loading = false;
+            spinner.style.display = 'none';
+        }
+
+        async function fetchMulti(queries) {
+            const promises = queries.map(q => fetch(API_URL + encodeURIComponent(q)).then(r => r.json()));
+            const results = await Promise.all(promises);
+            let imgs = [];
+            results.forEach(d => imgs.push(...clean(d)));
+            imgs.sort(() => Math.random() - 0.5);
+            render(imgs);
+        }
+
+        async function fetchImages(q) {
+            try {
+                const res = await fetch(API_URL + encodeURIComponent(q));
+                const data = await res.json();
+                render(clean(data));
+            } catch(e) {}
+        }
+
+        function clean(d) {
+            let i = Array.isArray(d) ? d : (d.data || d.result || []);
+            return i.map(x => x.image || x.media || x.url || x.display_url || x).filter(u => typeof u === 'string' && u.startsWith('http'));
+        }
+
+        function render(urls) {
+            urls.forEach((url) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <img src="${url}">
+                    <div class="card-info">
+                        <span style="font-size:10px; letter-spacing:1px; color:#aaa;">GALARY AGENCY</span>
+                        <i class="far fa-bookmark save-icon" data-hover onclick="event.stopPropagation(); alert('Saved')"></i>
+                    </div>
+                `;
+                card.onclick = () => openModal(url);
+                card.setAttribute('data-hover', '');
+                grid.appendChild(card);
+
+                // Reveal Animation
+                setTimeout(() => card.classList.add('visible'), 100);
+            });
+        }
+
+        // Infinite Scroll Event
+        window.addEventListener('scroll', () => {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+                loadImages();
+            }
+            // Header hide
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 100) nav.classList.add('hide');
+            else nav.classList.remove('hide');
+        });
+
+        // Search
+        document.getElementById('search-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                currentQuery = e.target.value;
+                loadImages(true);
+            }
+        });
+
+        // --- CONTEXT MENU ---
+        const ctx = document.getElementById('ctx-menu');
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            ctx.style.top = `${e.clientY}px`;
+            ctx.style.left = `${e.clientX}px`;
+            ctx.classList.add('active');
+        });
+        document.addEventListener('click', () => ctx.classList.remove('active'));
+
+        // --- MODAL ---
+        const modal = document.getElementById('modal');
+        function openModal(url) {
+            currentModalUrl = url;
+            document.getElementById('modal-img').src = url;
+            modal.style.display = 'flex';
+        }
+        function closeModal() { modal.style.display = 'none'; }
+        function downloadImg() { window.open(currentModalUrl, '_blank'); }
+
+        // --- SHORTCUTS ---
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '/') {
+                e.preventDefault();
+                document.getElementById('search-input').focus();
+            }
+            if (e.key === 'Escape') closeModal();
+        });
+
+    </script>
+</body>
+</html>
