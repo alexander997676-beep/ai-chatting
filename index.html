@@ -3,648 +3,591 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nexus: Gemini x Nano Banana</title>
+    <title>Nexus Aether | Gemini x Nano Banana</title>
     
-    <!-- Premium Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Libraries -->
+    <!-- Libs -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark-reasonable.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
 
     <style>
         :root {
-            --bg-deep: #030304;
-            --bg-panel: #0e0e11;
-            --bg-input: #18181b;
-            --primary: #8b5cf6; /* Gemini Purple */
-            --primary-glow: rgba(139, 92, 246, 0.4);
-            --banana: #facc15;  /* Nano Banana Gold */
-            --banana-glow: rgba(250, 204, 21, 0.4);
+            --bg-deep: #050505;
+            --bg-glass: rgba(20, 20, 20, 0.6);
+            --bg-panel: #111111;
+            --accent: #6366f1; /* Indigo */
+            --banana: #eab308; /* Gold */
             --text-main: #ffffff;
-            --text-muted: #9ca3af;
+            --text-muted: #94a3b8;
             --border: rgba(255, 255, 255, 0.08);
-            --radius: 16px;
+            --ease: cubic-bezier(0.23, 1, 0.32, 1);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
 
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Inter', sans-serif;
             background-color: var(--bg-deep);
             color: var(--text-main);
             height: 100vh;
-            display: flex;
             overflow: hidden;
-            background-image: 
-                radial-gradient(circle at 15% 50%, rgba(139, 92, 246, 0.08), transparent 25%),
-                radial-gradient(circle at 85% 30%, rgba(250, 204, 21, 0.05), transparent 25%);
+            display: flex;
+        }
+
+        /* --- BACKGROUND PARTICLES --- */
+        #canvas-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; pointer-events: none;
         }
 
         /* --- SIDEBAR --- */
-        aside {
+        .sidebar {
             width: 260px;
-            background: var(--bg-panel);
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
             border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-            transition: transform 0.3s ease;
-            z-index: 50;
+            display: flex; flex-direction: column;
+            padding: 24px;
+            transition: transform 0.3s var(--ease);
+            z-index: 100;
         }
 
         .brand {
-            font-size: 1.25rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 30px;
-            letter-spacing: -0.5px;
+            font-size: 1.2rem; font-weight: 700; letter-spacing: -0.5px;
+            margin-bottom: 30px; display: flex; align-items: center; gap: 10px;
+            color: white;
         }
 
-        .nav-group {
-            display: flex; flex-direction: column; gap: 8px; flex: 1;
-        }
-
-        .nav-item {
-            padding: 12px 15px;
-            border-radius: 12px;
-            cursor: pointer;
+        .nav-btn {
+            padding: 12px 16px; margin-bottom: 5px;
+            border-radius: 12px; cursor: pointer;
             display: flex; align-items: center; gap: 12px;
-            color: var(--text-muted);
-            font-weight: 500;
-            transition: 0.2s;
-            border: 1px solid transparent;
+            color: var(--text-muted); font-weight: 500;
+            transition: 0.2s; border: 1px solid transparent;
         }
-
-        .nav-item:hover { background: rgba(255,255,255,0.03); color: white; }
+        .nav-btn:hover { background: rgba(255,255,255,0.03); color: white; }
+        .nav-btn.active { background: rgba(255,255,255,0.08); color: white; border-color: var(--border); }
         
-        .nav-item.active { background: rgba(255,255,255,0.05); color: white; border-color: var(--border); }
-        .nav-item.active.gemini-nav { border-left: 3px solid var(--primary); }
-        .nav-item.active.banana-nav { border-left: 3px solid var(--banana); }
+        .nav-btn.active.gemini-tab i { color: var(--accent); }
+        .nav-btn.active.banana-tab i { color: var(--banana); }
 
-        .nav-icon { width: 24px; text-align: center; }
+        .spacer { flex: 1; }
 
-        .history-section {
-            margin-top: 20px;
+        .control-panel {
             border-top: 1px solid var(--border);
-            padding-top: 20px;
-            overflow-y: auto;
+            padding-top: 20px; display: flex; gap: 10px;
         }
-        .history-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #555; margin-bottom: 10px; font-weight: 700; }
-
-        .clear-btn {
-            margin-top: auto;
-            padding: 12px;
-            background: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            transition: 0.2s;
+        .icon-btn {
+            flex: 1; padding: 10px; border-radius: 8px;
+            background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+            color: var(--text-muted); cursor: pointer; transition: 0.2s;
+            display: flex; justify-content: center; align-items: center;
         }
-        .clear-btn:hover { background: #ef4444; color: white; }
+        .icon-btn:hover { background: rgba(255,255,255,0.1); color: white; }
 
         /* --- MAIN CONTENT --- */
-        main {
-            flex: 1;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .view-container {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
+        .main {
+            flex: 1; position: relative; display: flex; flex-direction: column;
+            background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.05), transparent 40%);
         }
 
         .view {
-            position: absolute; inset: 0;
-            display: none; flex-direction: column;
-            opacity: 0; transform: translateY(10px);
-            transition: 0.4s ease;
+            position: absolute; inset: 0; display: none; flex-direction: column;
+            opacity: 0; transform: translateY(10px); transition: 0.4s var(--ease);
         }
         .view.active { display: flex; opacity: 1; transform: translateY(0); }
 
-        /* --- CHAT AREA --- */
-        .chat-scroll {
-            flex: 1; overflow-y: auto; padding: 20px 40px;
+        /* Header */
+        .top-bar {
+            padding: 20px 30px; display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+        .page-title { font-weight: 600; font-size: 1.1rem; }
+        .status { font-size: 0.8rem; color: #4ade80; display: flex; align-items: center; gap: 6px; }
+        .status::before { content:''; width: 6px; height: 6px; background: currentColor; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
+
+        /* Chat Area */
+        .chat-container {
+            flex: 1; overflow-y: auto; padding: 30px;
             display: flex; flex-direction: column; gap: 24px;
             scroll-behavior: smooth;
         }
 
-        .empty-state {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            height: 100%; color: var(--text-muted); text-align: center;
-        }
-        .empty-icon { font-size: 3rem; margin-bottom: 20px; opacity: 0.5; }
-        
-        .chips { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 20px; }
-        .chip {
-            padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border);
-            background: rgba(255,255,255,0.03); cursor: pointer; font-size: 0.9rem;
-            transition: 0.2s;
-        }
-        .chip:hover { border-color: var(--primary); background: rgba(139, 92, 246, 0.1); color: white; }
-
-        .msg { display: flex; gap: 18px; max-width: 900px; margin: 0 auto; width: 100%; animation: fadeUp 0.3s forwards; }
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
+        .msg { display: flex; gap: 16px; max-width: 800px; margin: 0 auto; width: 100%; }
         .avatar {
-            width: 36px; height: 36px; border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0; font-size: 0.9rem;
+            width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center; font-size: 0.9rem;
         }
-        .u-av { background: #27272a; color: white; }
-        .a-av { background: linear-gradient(135deg, var(--primary), #4c1d95); color: white; box-shadow: 0 4px 15px var(--primary-glow); }
+        .av-ai { background: linear-gradient(135deg, var(--accent), #4338ca); color: white; box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3); }
+        .av-user { background: #27272a; color: white; border: 1px solid var(--border); }
 
-        .msg-body { flex: 1; line-height: 1.6; font-size: 1rem; color: #e5e7eb; }
-        .msg-body p { margin-bottom: 10px; }
-        
-        /* Mac Terminal Code Block */
-        .code-wrapper {
-            background: #0d0d0d; border: 1px solid #333; border-radius: 8px; margin: 15px 0; overflow: hidden;
-        }
-        .code-header {
-            background: #1a1a1a; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center;
-        }
-        .dots { display: flex; gap: 6px; }
-        .dot { width: 10px; height: 10px; border-radius: 50%; }
-        .red { background: #ff5f56; } .yellow { background: #ffbd2e; } .green { background: #27c93f; }
-        
-        .copy-code { cursor: pointer; font-size: 0.8rem; color: #888; display: flex; align-items: center; gap: 5px; }
-        .copy-code:hover { color: white; }
-        
-        pre { margin: 0; padding: 15px; overflow-x: auto; }
-        code { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; }
+        .bubble { flex: 1; line-height: 1.6; font-size: 1rem; color: #e2e8f0; }
+        .bubble p { margin-bottom: 10px; }
+        .bubble strong { color: white; font-weight: 600; }
 
-        /* --- NANO BANANA GALLERY --- */
-        .gallery-grid {
-            padding: 30px; overflow-y: auto; flex: 1;
+        /* Code Blocks */
+        pre { background: #0b0b0b !important; border-radius: 8px; border: 1px solid #222; margin: 15px 0; }
+        code { font-family: 'Fira Code', monospace; font-size: 0.9rem; }
+        .hljs { padding: 15px; background: transparent; }
+
+        /* Gallery Area */
+        .gallery-container {
+            flex: 1; overflow-y: auto; padding: 30px;
             display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 20px; align-content: start;
         }
 
-        .banana-card {
-            background: #18181b; border-radius: 16px; overflow: hidden;
+        .art-card {
+            background: #111; border-radius: 16px; overflow: hidden;
             border: 1px solid var(--border); position: relative;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3); transition: 0.3s;
+            transition: 0.3s; cursor: pointer;
         }
-        .banana-card:hover { transform: translateY(-5px); border-color: var(--banana); box-shadow: 0 10px 30px var(--banana-glow); }
+        .art-card:hover { transform: translateY(-5px); border-color: var(--banana); box-shadow: 0 10px 30px rgba(234, 179, 8, 0.1); }
+        .art-card img { width: 100%; display: block; aspect-ratio: 1/1; object-fit: cover; }
         
-        .banana-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; }
+        .art-meta {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            padding: 15px; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+            transform: translateY(100%); transition: 0.3s; display: flex; justify-content: space-between;
+        }
+        .art-card:hover .art-meta { transform: translateY(0); }
         
-        .card-info {
-            padding: 12px; display: flex; justify-content: space-between; align-items: center;
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
-            position: absolute; bottom: 0; width: 100%; transform: translateY(100%); transition: 0.3s;
-        }
-        .banana-card:hover .card-info { transform: translateY(0); }
-
-        .btn-dl { background: transparent; color: white; border: none; cursor: pointer; font-size: 1.1rem; }
-        .btn-dl:hover { color: var(--banana); }
-
-        /* --- INPUT BAR --- */
-        .input-area {
-            padding: 20px; display: flex; justify-content: center;
-            background: linear-gradient(to top, var(--bg-deep) 60%, transparent);
-            z-index: 10;
+        /* Input Area */
+        .input-dock {
+            padding: 24px; display: flex; justify-content: center;
+            background: linear-gradient(to top, var(--bg-deep) 40%, transparent);
+            z-index: 50;
         }
 
-        .input-box {
+        .dock-inner {
             width: 100%; max-width: 800px;
-            background: var(--bg-input); border: 1px solid var(--border);
-            border-radius: 20px; padding: 6px;
-            display: flex; align-items: flex-end;
-            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
+            background: var(--bg-panel); border: 1px solid var(--border);
+            border-radius: 18px; padding: 8px;
+            display: flex; align-items: flex-end; gap: 8px;
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
             transition: 0.3s;
         }
-
-        .input-box:focus-within { border-color: var(--primary); box-shadow: 0 0 20px var(--primary-glow); }
-        .input-box.banana-mode:focus-within { border-color: var(--banana); box-shadow: 0 0 20px var(--banana-glow); }
+        .dock-inner:focus-within { border-color: var(--accent); box-shadow: 0 0 25px rgba(99, 102, 241, 0.15); }
+        .dock-inner.banana-mode:focus-within { border-color: var(--banana); box-shadow: 0 0 25px rgba(234, 179, 8, 0.15); }
 
         textarea {
             flex: 1; background: transparent; border: none; color: white;
-            padding: 14px; font-size: 1rem; resize: none; font-family: inherit;
-            max-height: 140px;
+            padding: 12px; font-size: 1rem; font-family: inherit; resize: none;
+            max-height: 120px; min-height: 24px;
         }
 
-        .action-btn {
-            width: 45px; height: 45px; border-radius: 14px; border: none;
-            background: transparent; color: var(--text-muted);
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            font-size: 1.1rem; transition: 0.2s; margin-bottom: 2px;
+        .dock-btn {
+            width: 40px; height: 40px; border-radius: 10px; border: none;
+            background: transparent; color: var(--text-muted); cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: 0.2s;
         }
-        .action-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+        .dock-btn:hover { background: rgba(255,255,255,0.05); color: white; }
+
+        .send-btn { background: var(--accent); color: white; }
+        .send-btn:hover { background: #4f46e5; }
+        .send-btn.b-btn { background: var(--banana); color: black; }
+        .send-btn.b-btn:hover { background: #ca8a04; }
+
+        /* MODALS */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0; z-index: 200;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+            align-items: center; justify-content: center;
+        }
+        .modal-box {
+            background: #111; border: 1px solid var(--border);
+            width: 90%; max-width: 500px; border-radius: 20px;
+            padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            animation: popIn 0.3s var(--ease);
+        }
+        @keyframes popIn { from {opacity:0; transform:scale(0.9);} to {opacity:1; transform:scale(1);} }
+
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-title { font-size: 1.2rem; font-weight: 700; }
+        .modal-close { cursor: pointer; font-size: 1.2rem; color: #666; }
         
-        .send-btn { background: var(--primary); color: white; margin-left: 5px; }
-        .send-btn:hover { background: #7c3aed; }
-        .send-btn.banana-btn { background: var(--banana); color: black; }
-        .send-btn.banana-btn:hover { background: #eab308; }
+        .prompt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .prompt-card {
+            padding: 15px; border-radius: 12px; background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border); cursor: pointer; transition: 0.2s;
+            font-size: 0.9rem;
+        }
+        .prompt-card:hover { border-color: var(--accent); background: rgba(99, 102, 241, 0.1); }
+        .prompt-card b { display: block; color: white; margin-bottom: 5px; }
 
-        /* --- UTILS --- */
+        /* Loader */
         .loader {
-            display: none; position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.8); padding: 8px 16px; border-radius: 20px;
-            color: white; font-size: 0.9rem; border: 1px solid var(--border); z-index: 20;
-            align-items: center; gap: 8px;
+            position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%);
+            background: #000; border: 1px solid var(--border); padding: 8px 16px;
+            border-radius: 20px; font-size: 0.85rem; color: var(--text-muted);
+            display: none; align-items: center; gap: 8px; box-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
 
-        /* Modal */
-        .lightbox {
-            display: none; position: fixed; inset: 0; z-index: 100;
-            background: rgba(0,0,0,0.95); backdrop-filter: blur(10px);
-            justify-content: center; align-items: center;
-        }
-        .lightbox img { max-width: 90%; max-height: 85vh; border-radius: 8px; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
-        .close-lb { position: absolute; top: 30px; right: 30px; font-size: 2rem; color: white; cursor: pointer; }
-
+        /* Responsive */
         @media (max-width: 768px) {
-            aside { position: fixed; height: 100%; left: -280px; }
-            aside.open { left: 0; }
-            .chat-scroll { padding: 20px; }
-            .toggle-menu { display: block; margin-right: 15px; }
+            .sidebar { position: fixed; left: -280px; height: 100%; box-shadow: 50px 0 100px rgba(0,0,0,0.5); }
+            .sidebar.open { left: 0; }
+            .prompt-grid { grid-template-columns: 1fr; }
+            .top-bar { padding: 15px 20px; }
+            .menu-toggle { display: block !important; margin-right: 15px; }
         }
-        .toggle-menu { display: none; background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer; }
+        .menu-toggle { display: none; background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer; }
 
     </style>
 </head>
 <body>
 
+<canvas id="canvas-bg"></canvas>
+
 <!-- SIDEBAR -->
-<aside id="sidebar">
+<nav class="sidebar" id="sidebar">
     <div class="brand">
-        <i class="fa-solid fa-layer-group" style="color:var(--primary)"></i> Nexus AI
+        <i class="fa-solid fa-meteor" style="color:var(--accent)"></i> Nexus Aether
+    </div>
+    
+    <div class="nav-btn active gemini-tab" onclick="setMode('gemini')">
+        <i class="fa-solid fa-message"></i> Gemini Chat
+    </div>
+    <div class="nav-btn banana-tab" onclick="setMode('banana')">
+        <i class="fa-solid fa-palette"></i> Nano Banana
     </div>
 
-    <div class="nav-group">
-        <div class="nav-item active gemini-nav" onclick="switchMode('gemini')">
-            <span class="nav-icon"><i class="fa-solid fa-robot"></i></span>
-            <span>Gemini Chat</span>
+    <div class="spacer"></div>
+
+    <div class="control-panel">
+        <div class="icon-btn" onclick="openPrompts()" title="Prompt Library"><i class="fa-solid fa-book"></i></div>
+        <div class="icon-btn" onclick="toggleSettings()" title="Settings"><i class="fa-solid fa-sliders"></i></div>
+        <div class="icon-btn" onclick="clearData()" title="Clear Memory"><i class="fa-solid fa-trash"></i></div>
+    </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+    
+    <!-- HEADER -->
+    <header class="top-bar">
+        <div style="display:flex; align-items:center;">
+            <button class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')"><i class="fa-solid fa-bars"></i></button>
+            <div class="page-title" id="header-txt">Gemini Chat</div>
         </div>
-        <div class="nav-item banana-nav" onclick="switchMode('banana')">
-            <span class="nav-icon"><i class="fa-solid fa-bolt" style="color:var(--banana)"></i></span>
-            <span>Nano Banana</span>
-        </div>
-    </div>
+        <div class="status">Online</div>
+    </header>
 
-    <div class="history-section">
-        <div class="history-label">Memory</div>
-        <!-- Saved chats or stats could go here -->
-        <div style="font-size:0.8rem; color:#666; padding:10px;">
-            History is saved automatically.
-        </div>
-    </div>
-
-    <button class="clear-btn" onclick="wipeData()">
-        <i class="fa-solid fa-trash"></i> Reset All Data
-    </button>
-</aside>
-
-<!-- MAIN CONTENT -->
-<main>
-    <!-- Header for Mobile -->
-    <div style="padding: 15px 20px; display:flex; align-items:center; border-bottom:1px solid var(--border); background:rgba(0,0,0,0.5);">
-        <button class="toggle-menu" onclick="document.getElementById('sidebar').classList.toggle('open')">
-            <i class="fa-solid fa-bars"></i>
-        </button>
-        <span id="header-title" style="font-weight:700">Gemini Pro</span>
-    </div>
-
-    <div class="view-container">
-        
-        <!-- GEMINI VIEW -->
-        <div id="view-gemini" class="view active">
-            <div id="chat-feed" class="chat-scroll">
-                <div class="empty-state">
-                    <i class="fa-solid fa-brain empty-icon"></i>
-                    <h2>Hello, Human.</h2>
-                    <p>I am enhanced with Voice & Code capabilities.</p>
-                    <div class="chips">
-                        <div class="chip" onclick="setInput('Explain Quantum Physics')">⚛️ Physics</div>
-                        <div class="chip" onclick="setInput('Write a Python calculator')">🐍 Python Code</div>
-                        <div class="chip" onclick="setInput('Tell me a sci-fi story')">🚀 Sci-Fi Story</div>
-                    </div>
+    <!-- GEMINI VIEW -->
+    <div id="view-gemini" class="view active">
+        <div class="chat-container" id="chat-feed">
+            <div class="msg">
+                <div class="avatar av-ai"><i class="fa-solid fa-robot"></i></div>
+                <div class="bubble">
+                    <strong>Nexus AI</strong><br>
+                    Welcome to the Aether. I am ready to process text, code, and ideas.
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- NANO BANANA VIEW -->
-        <div id="view-banana" class="view">
-            <div id="gallery-feed" class="gallery-grid">
-                <!-- Images load here -->
-            </div>
-            <div id="banana-empty" class="empty-state" style="display:flex">
-                <i class="fa-solid fa-palette empty-icon" style="color:var(--banana)"></i>
-                <h2>Nano Banana Studio</h2>
-                <p>Powered by Magic Studio API.</p>
-                <div class="chips">
-                    <div class="chip" onclick="setInput('Cyberpunk street raining neon')">🌃 Cyberpunk</div>
-                    <div class="chip" onclick="setInput('A cute robot eating a banana')">🤖 Robot Banana</div>
-                    <div class="chip" onclick="setInput('Hyper-realistic dragon eye')">🐉 Dragon</div>
-                </div>
-            </div>
+    <!-- NANO BANANA VIEW -->
+    <div id="view-banana" class="view">
+        <div class="gallery-container" id="gallery-feed">
+            <!-- Images go here -->
         </div>
-
     </div>
 
     <!-- LOADER -->
     <div class="loader" id="loader">
-        <i class="fa-solid fa-circle-notch fa-spin"></i> <span id="load-text">Thinking...</span>
+        <i class="fa-solid fa-circle-notch fa-spin"></i> <span id="load-msg">Processing...</span>
     </div>
 
-    <!-- INPUT BAR -->
-    <div class="input-area">
-        <div class="input-box" id="input-box">
-            <textarea id="userInput" rows="1" placeholder="Ask Gemini something..."></textarea>
-            
-            <button class="action-btn" onclick="toggleVoice()" title="Read Last Response">
-                <i class="fa-solid fa-volume-high"></i>
-            </button>
-            
-            <button class="action-btn send-btn" id="send-btn" onclick="handleSend()">
-                <i class="fa-solid fa-paper-plane"></i>
-            </button>
+    <!-- INPUT DOCK -->
+    <div class="input-dock">
+        <div class="dock-inner" id="dock">
+            <button class="dock-btn" onclick="openPrompts()"><i class="fa-solid fa-lightbulb"></i></button>
+            <textarea id="prompt-in" rows="1" placeholder="Type a message..."></textarea>
+            <button class="dock-btn send-btn" id="send-btn" onclick="handleSend()"><i class="fa-solid fa-paper-plane"></i></button>
         </div>
     </div>
+
 </main>
 
-<!-- LIGHTBOX -->
-<div class="lightbox" id="lightbox">
-    <span class="close-lb" onclick="closeLightbox()">&times;</span>
-    <img id="lb-img" src="">
+<!-- PROMPT LIBRARY MODAL -->
+<div class="modal-overlay" id="modal-prompts">
+    <div class="modal-box">
+        <div class="modal-header">
+            <div class="modal-title">Prompt Library</div>
+            <div class="modal-close" onclick="closeModal('modal-prompts')">&times;</div>
+        </div>
+        <div class="prompt-grid">
+            <div class="prompt-card" onclick="usePrompt('Write a Python script for a Snake game.')">
+                <b>🐍 Coding</b> Python Snake Game
+            </div>
+            <div class="prompt-card" onclick="usePrompt('Explain Quantum Entanglement simply.')">
+                <b>⚛️ Science</b> Explain Quantum Physics
+            </div>
+            <div class="prompt-card" onclick="usePrompt('Create a cyberpunk city with neon rain.')">
+                <b>🌃 Art</b> Cyberpunk City (Image)
+            </div>
+            <div class="prompt-card" onclick="usePrompt('Write a short sci-fi story about Mars.')">
+                <b>🚀 Creative</b> Mars Sci-Fi Story
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="modal-settings">
+    <div class="modal-box">
+        <div class="modal-header">
+            <div class="modal-title">Settings</div>
+            <div class="modal-close" onclick="closeModal('modal-settings')">&times;</div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:15px;">
+            <label style="display:flex; justify-content:space-between; color:#ccc;">
+                Sound Effects
+                <input type="checkbox" checked id="set-sound">
+            </label>
+            <label style="display:flex; justify-content:space-between; color:#ccc;">
+                Auto-Read Responses (TTS)
+                <input type="checkbox" id="set-tts">
+            </label>
+            <div style="font-size:0.8rem; color:#666; margin-top:10px;">Nexus Aether v2.4.0</div>
+        </div>
+    </div>
+</div>
+
+<!-- FULLSCREEN IMAGE -->
+<div class="modal-overlay" id="modal-img">
+    <div style="position:relative; max-width:90%; max-height:90%;">
+        <img id="fs-img" src="" style="width:100%; height:auto; border-radius:8px; box-shadow:0 0 50px rgba(0,0,0,0.5);">
+        <div style="position:absolute; top:-40px; right:0; color:white; font-size:2rem; cursor:pointer;" onclick="closeModal('modal-img')">&times;</div>
+        <a id="fs-dl" href="#" download style="position:absolute; bottom:-40px; right:0; color:white; text-decoration:none;">Download Original</a>
+    </div>
 </div>
 
 <script>
-    // --- APP STATE ---
-    let currentMode = 'gemini';
-    const db = {
-        chats: JSON.parse(localStorage.getItem('nexus_chats')) || [],
-        images: JSON.parse(localStorage.getItem('nexus_images')) || []
-    };
+    // --- BACKGROUND PARTICLES ---
+    const canvas = document.getElementById('canvas-bg');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.addEventListener('resize', resize);
+    resize();
 
-    // --- DOM ELEMENTS ---
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.vx = (Math.random() - 0.5) * 0.5;
+            this.vy = (Math.random() - 0.5) * 0.5;
+            this.size = Math.random() * 2;
+        }
+        update() {
+            this.x += this.vx; this.y += this.vy;
+            if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+            if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+        }
+        draw() {
+            ctx.fillStyle = 'rgba(255,255,255,0.05)';
+            ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
+        }
+    }
+
+    for (let i = 0; i < 50; i++) particles.push(new Particle());
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => { p.update(); p.draw(); });
+        requestAnimationFrame(animate);
+    }
+    animate();
+
+    // --- APP LOGIC ---
+    let mode = 'gemini';
     const dom = {
-        input: document.getElementById('userInput'),
-        inputBox: document.getElementById('input-box'),
-        sendBtn: document.getElementById('send-btn'),
-        loader: document.getElementById('loader'),
-        loadText: document.getElementById('load-text'),
+        input: document.getElementById('prompt-in'),
         chatFeed: document.getElementById('chat-feed'),
         galleryFeed: document.getElementById('gallery-feed'),
-        headerTitle: document.getElementById('header-title'),
-        lb: document.getElementById('lightbox'),
-        lbImg: document.getElementById('lb-img')
+        loader: document.getElementById('loader'),
+        dock: document.getElementById('dock'),
+        sendBtn: document.getElementById('send-btn'),
+        header: document.getElementById('header-txt')
     };
 
-    // --- INIT ---
-    window.onload = () => {
-        // Load saved data
-        if(db.chats.length > 0) {
-            document.querySelector('.empty-state').style.display = 'none';
-            db.chats.forEach(c => appendMessage(c.role, c.text, false));
-        }
-        if(db.images.length > 0) {
-            document.getElementById('banana-empty').style.display = 'none';
-            db.images.forEach(img => appendImage(img.url, img.prompt, false));
-        }
-        
-        marked.setOptions({
-            highlight: (code, lang) => hljs.getLanguage(lang) ? hljs.highlight(code, { language: lang }).value : hljs.highlightAuto(code).value
-        });
-    };
-
-    dom.input.addEventListener('input', function() {
-        this.style.height = 'auto';
-        this.style.height = this.scrollHeight + 'px';
-    });
+    // Init
+    marked.setOptions({ highlight: (code, lang) => hljs.getLanguage(lang) ? hljs.highlight(code, { language: lang }).value : hljs.highlightAuto(code).value });
     
-    dom.input.addEventListener('keydown', (e) => {
-        if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
-    });
+    dom.input.addEventListener('keydown', (e) => { if(e.key==='Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } });
+    dom.input.addEventListener('input', function(){ this.style.height='auto'; this.style.height=this.scrollHeight+'px'; });
 
-    // --- NAVIGATION ---
-    function switchMode(mode) {
-        currentMode = mode;
-        // UI Toggles
+    // Navigation
+    function setMode(m) {
+        mode = m;
+        // Classes
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.querySelector(`.${m}-tab`).classList.add('active');
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        document.getElementById(`view-${mode}`).classList.add('active');
-        
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.querySelector(`.${mode}-nav`).classList.add('active');
+        document.getElementById(`view-${m}`).classList.add('active');
 
-        // Theme Toggles
-        if(mode === 'banana') {
-            dom.headerTitle.innerText = "Nano Banana Studio";
+        // Theme
+        if (m === 'banana') {
+            dom.header.innerText = 'Nano Banana Studio';
+            dom.dock.classList.add('banana-mode');
+            dom.sendBtn.classList.add('b-btn');
             dom.input.placeholder = "Describe an image to generate...";
-            dom.inputBox.classList.add('banana-mode');
-            dom.sendBtn.classList.add('banana-btn');
             dom.sendBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i>';
         } else {
-            dom.headerTitle.innerText = "Gemini Pro";
-            dom.input.placeholder = "Ask Gemini something...";
-            dom.inputBox.classList.remove('banana-mode');
-            dom.sendBtn.classList.remove('banana-btn');
+            dom.header.innerText = 'Gemini Chat';
+            dom.dock.classList.remove('banana-mode');
+            dom.sendBtn.classList.remove('b-btn');
+            dom.input.placeholder = "Type a message...";
             dom.sendBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
         }
     }
 
-    function setInput(text) {
-        dom.input.value = text;
-        dom.input.focus();
-    }
-
-    // --- LOGIC ---
+    // Logic
     async function handleSend() {
         const text = dom.input.value.trim();
         if(!text) return;
 
         dom.input.value = '';
         dom.input.style.height = 'auto';
-        dom.loader.style.display = 'flex';
+        playSound(600, 'sine');
 
-        if(currentMode === 'gemini') {
-            dom.loadText.innerText = "Gemini is thinking...";
-            appendMessage('user', text);
-            await fetchGemini(text);
+        if(mode === 'gemini') {
+            addMsg('user', text);
+            dom.loader.style.display = 'flex';
+            document.getElementById('load-msg').innerText = "Gemini is thinking...";
+            
+            try {
+                const res = await fetch(`https://api.xyro.site/ai/gemini?prompt=${encodeURIComponent(text)}`);
+                const data = await res.json();
+                const reply = data.result?.parts?.[0]?.text || data.response || data.message || "No response data.";
+                
+                dom.loader.style.display = 'none';
+                addMsg('ai', reply);
+                playSound(800, 'sine');
+                
+                if(document.getElementById('set-tts').checked) speak(reply);
+
+            } catch(e) {
+                dom.loader.style.display = 'none';
+                addMsg('ai', "Connection Error.");
+            }
         } else {
-            dom.loadText.innerText = "Nano Banana is drawing...";
-            await fetchBanana(text);
+            // Nano Banana
+            dom.loader.style.display = 'flex';
+            document.getElementById('load-msg').innerText = "Creating art...";
+            
+            // Artificial delay for UX
+            setTimeout(() => {
+                const url = `https://api.xyro.site/ai/magic-studio?prompt=${encodeURIComponent(text)}`;
+                
+                // Preload
+                const img = new Image();
+                img.src = url;
+                img.onload = () => { 
+                    dom.loader.style.display = 'none'; 
+                    addArt(url, text); 
+                    playSound(800, 'sine');
+                };
+                img.onerror = () => {
+                    dom.loader.style.display = 'none';
+                    addArt(url, text); // Try anyway
+                }
+            }, 500);
         }
     }
 
-    // --- GEMINI API ---
-    async function fetchGemini(prompt) {
-        try {
-            const res = await fetch(`https://api.xyro.site/ai/gemini?prompt=${encodeURIComponent(prompt)}`);
-            const data = await res.json();
-            
-            let reply = data.result?.parts?.[0]?.text || data.response || data.message || "I couldn't generate a response.";
-            
-            appendMessage('ai', reply);
-            
-            // Auto Speak (Optional, uncomment next line to enable auto-speak)
-            // speak(reply); 
-
-        } catch(e) {
-            appendMessage('ai', "Error connecting to server.");
-        } finally {
-            dom.loader.style.display = 'none';
-        }
-    }
-
-    function appendMessage(role, text, save = true) {
-        // Remove empty state
-        const empty = dom.chatFeed.querySelector('.empty-state');
-        if(empty) empty.style.display = 'none';
-
+    // Render Chat
+    function addMsg(role, text) {
         const div = document.createElement('div');
         div.className = 'msg';
+        const av = role === 'ai' 
+            ? '<div class="avatar av-ai"><i class="fa-solid fa-robot"></i></div>'
+            : '<div class="avatar av-user"><i class="fa-solid fa-user"></i></div>';
         
-        const avatar = role === 'ai' 
-            ? '<div class="avatar a-av"><i class="fa-solid fa-robot"></i></div>'
-            : '<div class="avatar u-av"><i class="fa-solid fa-user"></i></div>';
-
-        // Markdown Parsing
-        const html = role === 'ai' ? marked.parse(text) : text.replace(/\n/g, '<br>');
+        const content = role === 'ai' ? marked.parse(text) : text.replace(/\n/g, '<br>');
         
-        div.innerHTML = `${avatar}<div class="msg-body">${html}</div>`;
+        div.innerHTML = `${av}<div class="bubble">${content}</div>`;
         dom.chatFeed.appendChild(div);
-        
-        // Enhance Code Blocks
-        if(role === 'ai') enhanceCodeBlocks(div);
-        
         dom.chatFeed.scrollTop = dom.chatFeed.scrollHeight;
-
-        if(save) {
-            db.chats.push({ role, text });
-            localStorage.setItem('nexus_chats', JSON.stringify(db.chats));
-        }
     }
 
-    // --- NANO BANANA API ---
-    async function fetchBanana(prompt) {
-        const url = `https://api.xyro.site/ai/magic-studio?prompt=${encodeURIComponent(prompt)}`;
-        
-        const img = new Image();
-        img.src = url;
-        
-        img.onload = () => {
-            dom.loader.style.display = 'none';
-            appendImage(url, prompt);
-        };
-        
-        img.onerror = () => {
-            dom.loader.style.display = 'none';
-            // Force display even if CORS issues (browser will handle display)
-            appendImage(url, prompt);
-        };
-    }
-
-    function appendImage(url, prompt, save = true) {
-        const empty = document.getElementById('banana-empty');
-        if(empty) empty.style.display = 'none';
-
+    // Render Art
+    function addArt(url, prompt) {
         const div = document.createElement('div');
-        div.className = 'banana-card';
+        div.className = 'art-card';
         div.innerHTML = `
-            <img src="${url}" loading="lazy" onclick="openLightbox('${url}')">
-            <div class="card-info">
+            <img src="${url}" loading="lazy" onclick="viewImage('${url}')">
+            <div class="art-meta">
                 <span style="font-size:0.8rem; color:#ccc; max-width:80%; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;">${prompt}</span>
-                <button class="btn-dl" onclick="downloadImg('${url}')"><i class="fa-solid fa-download"></i></button>
+                <div style="cursor:pointer; color:var(--banana)" onclick="downloadImg('${url}')"><i class="fa-solid fa-download"></i></div>
             </div>
         `;
-        // Prepend to show newest first
         dom.galleryFeed.insertBefore(div, dom.galleryFeed.firstChild);
-
-        if(save) {
-            db.images.unshift({ url, prompt }); // Add to start
-            if(db.images.length > 20) db.images.pop(); // Limit to 20
-            localStorage.setItem('nexus_images', JSON.stringify(db.images));
-        }
     }
 
-    // --- HELPERS ---
-    function enhanceCodeBlocks(element) {
-        element.querySelectorAll('pre code').forEach(block => {
-            const pre = block.parentNode;
-            const lang = block.className.replace('language-', '') || 'Text';
-            const wrapper = document.createElement('div');
-            wrapper.className = 'code-wrapper';
-            wrapper.innerHTML = `
-                <div class="code-header">
-                    <div class="dots"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div></div>
-                    <div class="copy-code" onclick="copyText(this)">
-                        <i class="fa-regular fa-copy"></i> Copy ${lang}
-                    </div>
-                </div>
-            `;
-            pre.parentNode.replaceChild(wrapper, pre);
-            wrapper.appendChild(pre);
-        });
-    }
-
-    function copyText(btn) {
-        const code = btn.closest('.code-wrapper').querySelector('code').innerText;
-        navigator.clipboard.writeText(code);
-        const original = btn.innerHTML;
-        btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
-        setTimeout(() => btn.innerHTML = original, 2000);
-    }
-
-    // --- TTS VOICE ---
-    function toggleVoice() {
-        const msgs = db.chats.filter(c => c.role === 'ai');
-        if(msgs.length === 0) return;
-        
-        const lastMsg = msgs[msgs.length - 1].text;
-        speak(lastMsg);
-    }
-
-    function speak(text) {
-        window.speechSynthesis.cancel();
-        // Strip markdown symbols for cleaner speech
-        const cleanText = text.replace(/[*#`]/g, ''); 
-        const utterance = new SpeechSynthesisUtterance(cleanText);
-        utterance.rate = 1;
-        utterance.pitch = 1;
-        window.speechSynthesis.speak(utterance);
-    }
-
-    // --- LIGHTBOX & DOWNLOAD ---
-    function openLightbox(url) {
-        dom.lbImg.src = url;
-        dom.lb.style.display = 'flex';
-    }
-    function closeLightbox() { dom.lb.style.display = 'none'; }
+    // Features
+    function openPrompts() { document.getElementById('modal-prompts').style.display = 'flex'; }
+    function toggleSettings() { document.getElementById('modal-settings').style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
     
+    function usePrompt(txt) {
+        closeModal('modal-prompts');
+        dom.input.value = txt;
+        dom.input.focus();
+        // Check mode
+        if(txt.includes('(Image)') && mode !== 'banana') setMode('banana');
+        if(!txt.includes('(Image)') && mode === 'banana') setMode('gemini');
+    }
+
+    function viewImage(url) {
+        document.getElementById('fs-img').src = url;
+        document.getElementById('fs-dl').href = url;
+        document.getElementById('modal-img').style.display = 'flex';
+    }
+
     async function downloadImg(url) {
         try {
             const res = await fetch(url);
             const blob = await res.blob();
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = `Nano-Banana-${Date.now()}.jpg`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        } catch(e) {
-            window.open(url, '_blank');
+            a.download = `Nexus-Art-${Date.now()}.jpg`;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        } catch(e) { window.open(url, '_blank'); }
+    }
+
+    function clearData() {
+        if(confirm("Clear current session?")) {
+            dom.chatFeed.innerHTML = '';
+            dom.galleryFeed.innerHTML = '';
         }
     }
 
-    function wipeData() {
-        if(confirm("Factory Reset: Delete all history and images?")) {
-            localStorage.removeItem('nexus_chats');
-            localStorage.removeItem('nexus_images');
-            location.reload();
-        }
+    // Sound Engine (Web Audio)
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSound(freq, type) {
+        if(!document.getElementById('set-sound').checked) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+    }
+
+    // TTS
+    function speak(text) {
+        const clean = text.replace(/[*#`]/g, '');
+        const u = new SpeechSynthesisUtterance(clean);
+        window.speechSynthesis.speak(u);
     }
 
 </script>
