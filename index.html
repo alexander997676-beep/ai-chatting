@@ -2,39 +2,438 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#050505">
-    <title>Galary Agency | Aether</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini x Magic Hub</title>
     
-    <!-- Favicon -->
-    <link rel="icon" href="https://n.f-a-k.workers.dev/geminigeneratedimage5497qx5497qx54972.png" type="image/png">
+    <!-- Icons & Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
-    <!-- Icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Markdown Parser -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
-        /* --- 🌑 AETHER VARIABLES --- */
         :root {
-            --bg: #030303;
-            --surface: #0f0f0f;
-            --text-main: #f0f0f0;
-            --text-muted: #666;
-            --accent: #FFD700;
-            --accent-glow: rgba(255, 215, 0, 0.4);
-            --border: rgba(255, 255, 255, 0.08);
-            --font-head: 'Cinzel', serif;
-            --font-body: 'Space Grotesk', sans-serif;
+            --bg-dark: #09090b;
+            --bg-sidebar: #121214;
+            --bg-card: #1c1c1f;
+            --gemini-color: #8b5cf6; /* Purple */
+            --magic-color: #ec4899;  /* Pink for Magic Studio */
+            --text-main: #ffffff;
+            --text-muted: #a1a1aa;
+            --border: #27272a;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
-        
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+
         body {
-            background-color: var(--bg); color: var(--text-main);
-            font-family: var(--font-body); overflow-x: hidden;
-            min-height: 100vh;
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
         }
+
+        /* --- Sidebar Navigation --- */
+        .sidebar {
+            width: 80px;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+            gap: 20px;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+        }
+
+        .nav-btn:hover { background: var(--bg-card); color: white; }
+        .nav-btn.active { background: var(--bg-card); color: white; }
+        
+        /* Active Indicators */
+        .nav-btn.active.gemini-tab { color: var(--gemini-color); box-shadow: 0 0 15px rgba(139, 92, 246, 0.2); }
+        .nav-btn.active.magic-tab { color: var(--magic-color); box-shadow: 0 0 15px rgba(236, 72, 153, 0.2); }
+
+        .tooltip {
+            position: absolute; left: 60px; top: 12px;
+            background: #333; padding: 5px 10px;
+            border-radius: 4px; font-size: 0.8rem;
+            opacity: 0; pointer-events: none; transition: 0.2s;
+            white-space: nowrap; z-index: 10;
+        }
+        .nav-btn:hover .tooltip { opacity: 1; left: 70px; }
+
+        /* --- Main Content Area --- */
+        .main-content {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .view-section {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: none;
+            flex-direction: column;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .view-section.active-view {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* --- HEADER STYLES --- */
+        .header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(9, 9, 11, 0.8);
+            backdrop-filter: blur(10px);
+        }
+        .header h2 { font-size: 1.2rem; font-weight: 600; }
+        .gemini-header i { color: var(--gemini-color); }
+        .magic-header i { color: var(--magic-color); }
+
+        /* --- GEMINI CHAT STYLES --- */
+        #chat-feed {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .msg {
+            display: flex;
+            gap: 15px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+            animation: slideUp 0.3s ease;
+        }
+        
+        .avatar {
+            width: 35px; height: 35px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .user-av { background: #333; }
+        .ai-av { background: linear-gradient(135deg, var(--gemini-color), #6366f1); }
+
+        .msg-text { line-height: 1.6; font-size: 1rem; color: #e4e4e7; }
+        
+        pre { background: #161618; padding: 15px; border-radius: 8px; overflow-x: auto; border: 1px solid #333; }
+
+        /* --- MAGIC GALLERY STYLES --- */
+        #gallery-feed {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            align-content: start;
+        }
+
+        .img-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            animation: fadeIn 0.5s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .img-card img {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            display: block;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .img-card img:hover { transform: scale(1.02); }
+
+        .img-info {
+            padding: 12px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .download-btn {
+            background: transparent;
+            border: 1px solid #333;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .download-btn:hover { background: var(--magic-color); color: white; border-color: var(--magic-color); }
+
+        /* --- INPUT AREAS --- */
+        .input-container {
+            padding: 20px;
+            background: var(--bg-dark);
+            display: flex;
+            justify-content: center;
+            border-top: 1px solid var(--border);
+        }
+
+        .input-box {
+            width: 100%; max-width: 800px;
+            background: var(--bg-sidebar);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            transition: 0.3s;
+        }
+
+        .gemini-input:focus-within { border-color: var(--gemini-color); box-shadow: 0 0 15px rgba(139, 92, 246, 0.1); }
+        .magic-input:focus-within { border-color: var(--magic-color); box-shadow: 0 0 15px rgba(236, 72, 153, 0.1); }
+
+        input {
+            flex: 1; background: transparent; border: none;
+            color: white; padding: 10px; font-size: 1rem;
+        }
+
+        .send-btn {
+            width: 40px; height: 40px; border: none; border-radius: 8px;
+            cursor: pointer; color: white; display: flex; align-items: center; justify-content: center;
+            margin-left: 5px; transition: 0.2s;
+        }
+        
+        .g-btn { background: var(--gemini-color); }
+        .m-btn { background: var(--magic-color); }
+        .send-btn:hover { transform: scale(1.05); }
+
+        .loader { text-align: center; color: var(--text-muted); padding: 10px; display: none; }
+        
+        @keyframes slideUp { from {opacity: 0; transform: translateY(10px);} to {opacity: 1; transform: translateY(0);} }
+        @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
+
+    </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+    <button class="nav-btn active gemini-tab" onclick="switchTab('gemini')">
+        <i class="fa-solid fa-comment-dots"></i>
+        <div class="tooltip">Chat</div>
+    </button>
+    <button class="nav-btn magic-tab" onclick="switchTab('magic')">
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+        <div class="tooltip">Magic</div>
+    </button>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main-content">
+
+    <!-- VIEW 1: GEMINI CHAT -->
+    <section id="view-gemini" class="view-section active-view">
+        <div class="header gemini-header">
+            <i class="fa-solid fa-sparkles"></i>
+            <h2>Gemini Pro</h2>
+        </div>
+        
+        <div id="chat-feed">
+            <div class="msg">
+                <div class="avatar ai-av"><i class="fa-solid fa-robot"></i></div>
+                <div class="msg-text">Hello! I am Gemini. I can help with text and coding.</div>
+            </div>
+        </div>
+
+        <div class="loader" id="gemini-loader"><i class="fa-solid fa-circle-notch fa-spin"></i> Typing...</div>
+
+        <div class="input-container">
+            <div class="input-box gemini-input">
+                <input type="text" id="geminiPrompt" placeholder="Message Gemini..." autocomplete="off">
+                <button class="send-btn g-btn" onclick="sendGemini()"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </section>
+
+    <!-- VIEW 2: MAGIC STUDIO IMAGE -->
+    <section id="view-magic" class="view-section">
+        <div class="header magic-header">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <h2>Magic Studio AI</h2>
+        </div>
+
+        <div id="gallery-feed">
+            <!-- Images will appear here -->
+        </div>
+        
+        <div class="loader" id="magic-loader" style="position:absolute; bottom: 80px; width:100%; text-align:center;">
+            <i class="fa-solid fa-spinner fa-spin"></i> Creating Magic...
+        </div>
+
+        <div class="input-container">
+            <div class="input-box magic-input">
+                <input type="text" id="magicPrompt" placeholder="Describe an image (e.g., A futuristic city)..." autocomplete="off">
+                <button class="send-btn m-btn" onclick="generateMagic()"><i class="fa-solid fa-bolt"></i></button>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<script>
+    // --- TAB SWITCHING ---
+    function switchTab(tabName) {
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelector(`.${tabName}-tab`).classList.add('active');
+
+        document.querySelectorAll('.view-section').forEach(view => view.classList.remove('active-view'));
+        document.getElementById(`view-${tabName}`).classList.add('active-view');
+    }
+
+    // --- GEMINI LOGIC ---
+    const geminiInput = document.getElementById('geminiPrompt');
+    const chatFeed = document.getElementById('chat-feed');
+    const gLoader = document.getElementById('gemini-loader');
+
+    geminiInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendGemini(); });
+
+    async function sendGemini() {
+        const text = geminiInput.value.trim();
+        if(!text) return;
+
+        addChatMessage(text, 'user');
+        geminiInput.value = '';
+        gLoader.style.display = 'block';
+        chatFeed.scrollTop = chatFeed.scrollHeight;
+
+        try {
+            const res = await fetch(`https://api.xyro.site/ai/gemini?prompt=${encodeURIComponent(text)}`);
+            const data = await res.json();
+            
+            let reply = "Error parsing response";
+            if(data.result?.parts?.[0]?.text) reply = data.result.parts[0].text;
+            else if(data.response) reply = data.response;
+            else if(data.message) reply = data.message;
+
+            addChatMessage(reply, 'ai');
+
+        } catch(e) {
+            addChatMessage("Connection Error.", 'ai');
+        } finally {
+            gLoader.style.display = 'none';
+        }
+    }
+
+    function addChatMessage(text, sender) {
+        const div = document.createElement('div');
+        div.className = 'msg';
+        
+        const avatar = sender === 'user' 
+            ? '<div class="avatar user-av"><i class="fa-solid fa-user"></i></div>'
+            : '<div class="avatar ai-av"><i class="fa-solid fa-robot"></i></div>';
+        
+        const content = sender === 'user' ? text : marked.parse(text);
+
+        div.innerHTML = `${avatar}<div class="msg-text">${content}</div>`;
+        chatFeed.appendChild(div);
+        chatFeed.scrollTop = chatFeed.scrollHeight;
+    }
+
+    // --- MAGIC STUDIO LOGIC (NEW API) ---
+    const magicInput = document.getElementById('magicPrompt');
+    const galleryFeed = document.getElementById('gallery-feed');
+    const mLoader = document.getElementById('magic-loader');
+
+    magicInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') generateMagic(); });
+
+    async function generateMagic() {
+        const prompt = magicInput.value.trim();
+        if(!prompt) return;
+
+        magicInput.value = '';
+        mLoader.style.display = 'block';
+
+        // NEW API ENDPOINT
+        const url = `https://api.xyro.site/ai/magic-studio?prompt=${encodeURIComponent(prompt)}`;
+
+        const img = new Image();
+        img.src = url;
+
+        img.onload = function() {
+            mLoader.style.display = 'none';
+            addCardToGallery(url, prompt);
+        };
+        
+        img.onerror = function() {
+            mLoader.style.display = 'none';
+            // Sometimes API fails on first try or has CORS, we try to show it anyway or alert
+            alert("API response slow. If image doesn't appear, try again.");
+            addCardToGallery(url, prompt); // Try forcing display
+        };
+    }
+
+    function addCardToGallery(url, prompt) {
+        const card = document.createElement('div');
+        card.className = 'img-card';
+        card.innerHTML = `
+            <img src="${url}" alt="${prompt}" onclick="window.open('${url}', '_blank')">
+            <div class="img-info">
+                <span>${prompt.length > 20 ? prompt.substring(0,20)+'...' : prompt}</span>
+                <button class="download-btn" onclick="downloadImage('${url}')">
+                    <i class="fa-solid fa-download"></i>
+                </button>
+            </div>
+        `;
+        galleryFeed.insertBefore(card, galleryFeed.firstChild);
+    }
+
+    async function downloadImage(url) {
+        try {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            const blobUrl = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = blobUrl;
+            link.download = "magic-art-" + Date.now() + ".jpg";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch(e) {
+            window.open(url, '_blank');
+        }
+    }
+
+</script>
+
+</body>
+</html>        }
 
         /* --- 🎞️ FILM GRAIN TEXTURE --- */
         .noise-overlay {
