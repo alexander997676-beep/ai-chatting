@@ -2,15 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!-- Viewport adjustment for mobile -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Nexus Aether | Gemini x Nano Banana</title>
     
-    <!-- Fonts -->
+    <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Libs -->
+    <!-- Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
@@ -34,14 +33,13 @@
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-deep);
             color: var(--text-main);
-            /* dvh handles mobile URL bar better */
-            height: 100dvh; 
+            height: 100dvh; /* Mobile Friendly Height */
             width: 100vw;
             overflow: hidden;
             display: flex;
         }
 
-        /* --- BACKGROUND PARTICLES --- */
+        /* --- BACKGROUND --- */
         #canvas-bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1; pointer-events: none;
@@ -56,7 +54,7 @@
             display: flex; flex-direction: column;
             padding: 24px;
             transition: transform 0.3s var(--ease);
-            z-index: 100;
+            z-index: 1000; /* High Z-index to sit on top */
             height: 100%;
         }
 
@@ -89,27 +87,21 @@
             color: var(--text-muted); cursor: pointer; transition: 0.2s;
             display: flex; justify-content: center; align-items: center;
         }
-        .icon-btn:hover { background: rgba(255,255,255,0.1); color: white; }
 
-        /* --- MAIN CONTENT (Modified for Mobile Fix) --- */
+        /* --- MAIN LAYOUT --- */
         .main {
             flex: 1; 
             position: relative; 
             display: flex; 
-            flex-direction: column; /* Stack Top, Chat, Dock vertically */
+            flex-direction: column; 
             background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.05), transparent 40%);
             height: 100%;
             overflow: hidden;
         }
 
-        /* Views occupy remaining space */
         .view {
-            flex: 1; 
-            display: none; 
-            flex-direction: column;
-            opacity: 0; 
-            overflow: hidden; /* Prevent double scroll */
-            position: relative;
+            flex: 1; display: none; flex-direction: column;
+            opacity: 0; overflow: hidden; position: relative;
         }
         .view.active { display: flex; opacity: 1; }
 
@@ -119,37 +111,27 @@
             border-bottom: 1px solid var(--border);
             flex-shrink: 0;
             background: rgba(5, 5, 5, 0.8);
+            z-index: 100;
         }
         .page-title { font-weight: 600; font-size: 1.1rem; }
         .status { font-size: 0.8rem; color: #4ade80; display: flex; align-items: center; gap: 6px; }
         .status::before { content:''; width: 6px; height: 6px; background: currentColor; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
 
-        /* Chat Area */
+        /* Chat */
         .chat-container {
-            flex: 1; /* Grows to fill space */
-            overflow-y: auto; /* Scrolls internally */
-            padding: 20px;
+            flex: 1; overflow-y: auto; padding: 20px;
             display: flex; flex-direction: column; gap: 24px;
             scroll-behavior: smooth;
         }
-
         .msg { display: flex; gap: 12px; max-width: 800px; margin: 0 auto; width: 100%; }
         .avatar {
             width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
             display: flex; align-items: center; justify-content: center; font-size: 0.8rem;
         }
-        .av-ai { background: linear-gradient(135deg, var(--accent), #4338ca); color: white; box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3); }
+        .av-ai { background: linear-gradient(135deg, var(--accent), #4338ca); color: white; }
         .av-user { background: #27272a; color: white; border: 1px solid var(--border); }
-
         .bubble { flex: 1; line-height: 1.6; font-size: 0.95rem; color: #e2e8f0; word-wrap: break-word; }
-        .bubble p { margin-bottom: 10px; }
-        .bubble strong { color: white; font-weight: 600; }
-
-        /* Code Blocks */
-        pre { background: #0b0b0b !important; border-radius: 8px; border: 1px solid #222; margin: 15px 0; overflow-x: auto; }
-        code { font-family: 'Fira Code', monospace; font-size: 0.85rem; }
-        .hljs { padding: 15px; background: transparent; }
-
+        
         /* Gallery */
         .gallery-container {
             flex: 1; overflow-y: auto; padding: 20px;
@@ -158,8 +140,7 @@
         }
         .art-card {
             background: #111; border-radius: 12px; overflow: hidden;
-            border: 1px solid var(--border); position: relative;
-            cursor: pointer;
+            border: 1px solid var(--border); position: relative; cursor: pointer;
         }
         .art-card img { width: 100%; display: block; aspect-ratio: 1/1; object-fit: cover; }
         .art-meta {
@@ -168,89 +149,77 @@
             display: flex; justify-content: space-between; align-items: center;
         }
 
-        /* --- INPUT DOCK FIXED --- */
+        /* --- DOCK --- */
         .input-dock {
             width: 100%;
-            padding: 10px 15px 15px 15px; /* Adjust padding */
-            background: var(--bg-deep); /* Solid BG prevents see-through mess */
+            padding: 10px 15px 15px 15px;
+            background: var(--bg-deep);
             border-top: 1px solid var(--border);
-            display: flex; 
-            flex-direction: column; 
-            align-items: center;
-            flex-shrink: 0; /* Prevents shrinking */
-            z-index: 50;
+            display: flex; flex-direction: column; align-items: center;
+            flex-shrink: 0; z-index: 50;
         }
-
         .faz-signature {
-            font-size: 0.65rem;
-            color: var(--text-muted);
-            letter-spacing: 3px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            text-align: center;
-            opacity: 0.7;
+            font-size: 0.65rem; color: var(--text-muted); letter-spacing: 3px;
+            font-weight: 700; margin-bottom: 8px; text-transform: uppercase;
+            text-align: center; opacity: 0.7;
         }
-
         .dock-inner {
             width: 100%; max-width: 800px;
             background: var(--bg-panel); border: 1px solid var(--border);
             border-radius: 25px; padding: 6px 10px;
             display: flex; align-items: flex-end; gap: 8px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            transition: 0.3s;
         }
         .dock-inner:focus-within { border-color: var(--accent); }
         .dock-inner.banana-mode:focus-within { border-color: var(--banana); }
-
+        
         textarea {
             flex: 1; background: transparent; border: none; color: white;
             padding: 10px; font-size: 0.95rem; font-family: inherit; resize: none;
-            max-height: 100px; min-height: 24px;
-            line-height: 1.4;
+            max-height: 100px; min-height: 24px; line-height: 1.4;
         }
-
         .dock-btn {
             width: 36px; height: 36px; border-radius: 50%; border: none;
             background: transparent; color: var(--text-muted); cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
         .send-btn { background: var(--accent); color: white; }
         .send-btn.b-btn { background: var(--banana); color: black; }
 
-        /* Loader */
+        /* Mobile specific */
+        @media (max-width: 768px) {
+            .sidebar { position: fixed; left: -280px; height: 100%; box-shadow: 50px 0 100px rgba(0,0,0,0.5); }
+            .sidebar.open { left: 0; }
+            .menu-toggle { display: block !important; margin-right: 15px; }
+            
+            /* Sidebar Overlay to close when clicking outside */
+            .sidebar-overlay {
+                display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 900;
+                backdrop-filter: blur(2px);
+            }
+            .sidebar-overlay.active { display: block; }
+        }
+        .menu-toggle { display: none; background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer; }
+
+        /* Loader & Modals */
         .loader {
             position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%);
             background: #000; border: 1px solid var(--border); padding: 8px 16px;
             border-radius: 20px; font-size: 0.85rem; color: var(--text-muted);
             display: none; align-items: center; gap: 8px; z-index: 60;
         }
-
-        /* Responsive Sidebar */
-        @media (max-width: 768px) {
-            .sidebar { position: fixed; left: -280px; height: 100%; box-shadow: 50px 0 100px rgba(0,0,0,0.5); }
-            .sidebar.open { left: 0; }
-            .prompt-grid { grid-template-columns: 1fr; }
-            .menu-toggle { display: block !important; margin-right: 15px; }
-            
-            /* Fix chat padding on mobile */
-            .chat-container { padding: 15px; padding-bottom: 20px; }
-        }
-        .menu-toggle { display: none; background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer; }
-
-        /* Modals */
         .modal-overlay { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); align-items: center; justify-content: center; }
         .modal-box { background: #111; width: 90%; max-width: 400px; padding: 20px; border-radius: 15px; border: 1px solid var(--border); }
         .prompt-grid { display: grid; gap: 10px; margin-top: 15px; }
         .prompt-card { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; cursor: pointer; border: 1px solid transparent; }
-        .prompt-card:hover { border-color: var(--accent); }
 
     </style>
 </head>
 <body>
 
 <canvas id="canvas-bg"></canvas>
+
+<!-- Sidebar Overlay for Mobile -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
 
 <!-- SIDEBAR -->
 <nav class="sidebar" id="sidebar">
@@ -268,144 +237,101 @@
     <div class="spacer"></div>
 
     <div class="control-panel">
-        <div class="icon-btn" onclick="openPrompts()" title="Prompt Library"><i class="fa-solid fa-book"></i></div>
-        <div class="icon-btn" onclick="toggleSettings()" title="Settings"><i class="fa-solid fa-sliders"></i></div>
-        <div class="icon-btn" onclick="clearData()" title="Clear Memory"><i class="fa-solid fa-trash"></i></div>
+        <div class="icon-btn" onclick="openPrompts()"><i class="fa-solid fa-book"></i></div>
+        <div class="icon-btn" onclick="toggleSettings()"><i class="fa-solid fa-sliders"></i></div>
+        <div class="icon-btn" onclick="clearData()"><i class="fa-solid fa-trash"></i></div>
     </div>
 </nav>
 
-<!-- MAIN LAYOUT -->
+<!-- MAIN -->
 <main class="main">
-    
-    <!-- HEADER -->
     <header class="top-bar">
         <div style="display:flex; align-items:center;">
-            <button class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')"><i class="fa-solid fa-bars"></i></button>
+            <button class="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
             <div class="page-title" id="header-txt">Gemini Chat</div>
         </div>
         <div class="status">Online</div>
     </header>
 
-    <!-- GEMINI VIEW -->
     <div id="view-gemini" class="view active">
         <div class="chat-container" id="chat-feed">
             <div class="msg">
                 <div class="avatar av-ai"><i class="fa-solid fa-robot"></i></div>
-                <div class="bubble">
-                    <strong>Nexus AI</strong><br>
-                    Welcome to the Aether. I am ready to process text, code, and ideas.
-                </div>
+                <div class="bubble"><strong>Nexus AI</strong><br>Welcome. I am ready.</div>
             </div>
         </div>
     </div>
 
-    <!-- NANO BANANA VIEW -->
     <div id="view-banana" class="view">
         <div class="gallery-container" id="gallery-feed">
-            <!-- Images -->
+            <!-- Art goes here -->
         </div>
     </div>
 
-    <!-- LOADER -->
-    <div class="loader" id="loader">
-        <i class="fa-solid fa-circle-notch fa-spin"></i> <span id="load-msg">Thinking...</span>
-    </div>
+    <div class="loader" id="loader"><i class="fa-solid fa-circle-notch fa-spin"></i> <span id="load-msg">Thinking...</span></div>
 
-    <!-- INPUT DOCK (FIXED POSITION) -->
     <div class="input-dock">
         <div class="faz-signature">MADE BY FAZ</div>
-        
         <div class="dock-inner" id="dock">
             <button class="dock-btn" onclick="openPrompts()"><i class="fa-solid fa-lightbulb"></i></button>
             <textarea id="prompt-in" rows="1" placeholder="Message..."></textarea>
             <button class="dock-btn send-btn" id="send-btn" onclick="handleSend()"><i class="fa-solid fa-paper-plane"></i></button>
         </div>
     </div>
-
 </main>
 
-<!-- PROMPT LIBRARY MODAL -->
+<!-- MODALS -->
 <div class="modal-overlay" id="modal-prompts">
     <div class="modal-box">
-        <div style="display:flex; justify-content:space-between;">
-            <h3>Library</h3>
-            <span onclick="closeModal('modal-prompts')" style="cursor:pointer; font-size:1.2rem">&times;</span>
-        </div>
+        <div style="display:flex; justify-content:space-between;"><h3>Library</h3><span onclick="closeModal('modal-prompts')" style="cursor:pointer">&times;</span></div>
         <div class="prompt-grid">
-            <div class="prompt-card" onclick="usePrompt('Write a Python script for a Snake game.')">
-                <b>🐍 Coding</b> Snake Game Code
-            </div>
-            <div class="prompt-card" onclick="usePrompt('Explain Quantum Entanglement simply.')">
-                <b>⚛️ Science</b> Quantum Physics
-            </div>
-            <div class="prompt-card" onclick="usePrompt('Create a cyberpunk city with neon rain.')">
-                <b>🌃 Art</b> Cyberpunk City (Image)
-            </div>
+            <div class="prompt-card" onclick="usePrompt('Write a Python script for Snake.')"><b>🐍 Code</b> Snake Game</div>
+            <div class="prompt-card" onclick="usePrompt('Create a cyberpunk city.')"><b>🌃 Art</b> Cyberpunk City</div>
         </div>
     </div>
 </div>
 
-<!-- SETTINGS MODAL -->
 <div class="modal-overlay" id="modal-settings">
     <div class="modal-box">
-        <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
-            <h3>Settings</h3>
-            <span onclick="closeModal('modal-settings')" style="cursor:pointer; font-size:1.2rem">&times;</span>
-        </div>
-        <div style="display:flex; flex-direction:column; gap:15px;">
-            <label style="display:flex; justify-content:space-between; color:#ccc;">
-                Sound Effects <input type="checkbox" checked id="set-sound">
-            </label>
-            <label style="display:flex; justify-content:space-between; color:#ccc;">
-                Auto-Read (TTS) <input type="checkbox" id="set-tts">
-            </label>
-        </div>
+        <div style="display:flex; justify-content:space-between;"><h3>Settings</h3><span onclick="closeModal('modal-settings')" style="cursor:pointer">&times;</span></div>
+        <label style="display:flex; justify-content:space-between; margin-top:15px; color:#ccc;">Sound <input type="checkbox" checked id="set-sound"></label>
     </div>
 </div>
 
-<!-- IMAGE MODAL -->
 <div class="modal-overlay" id="modal-img">
     <div style="position:relative; width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;">
-        <img id="fs-img" src="" style="max-width:100%; max-height:80vh; border-radius:8px; box-shadow:0 0 30px rgba(0,0,0,0.8);">
+        <img id="fs-img" src="" style="max-width:100%; max-height:80vh; border-radius:8px;">
         <div style="margin-top:20px; display:flex; gap:20px;">
             <button onclick="closeModal('modal-img')" style="padding:10px 20px; border-radius:20px; border:none; background:#333; color:white;">Close</button>
-            <a id="fs-dl" href="#" download style="padding:10px 20px; border-radius:20px; background:var(--banana); color:black; text-decoration:none; font-weight:bold;">Download</a>
+            <a id="fs-dl" href="#" download style="padding:10px 20px; border-radius:20px; background:var(--banana); color:black; text-decoration:none;">Download</a>
         </div>
     </div>
 </div>
 
 <script>
-    // --- CANVAS BG ---
-    const canvas = document.getElementById('canvas-bg');
-    const ctx = canvas.getContext('2d');
-    let particles = [];
-    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    // --- CANVAS ---
+    const canvas = document.getElementById('canvas-bg'); const ctx = canvas.getContext('2d');
+    function resize() { canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
     window.addEventListener('resize', resize); resize();
-    class Particle {
-        constructor() { this.x=Math.random()*canvas.width; this.y=Math.random()*canvas.height; this.vx=(Math.random()-0.5)*0.5; this.vy=(Math.random()-0.5)*0.5; this.size=Math.random()*2; }
-        update() { this.x+=this.vx; this.y+=this.vy; if(this.x<0||this.x>canvas.width)this.vx*=-1; if(this.y<0||this.y>canvas.height)this.vy*=-1; }
-        draw() { ctx.fillStyle='rgba(255,255,255,0.05)'; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); }
-    }
-    for(let i=0;i<50;i++) particles.push(new Particle());
-    function animate(){ ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach(p=>{p.update();p.draw()}); requestAnimationFrame(animate); }
+    let particles=[]; for(let i=0;i<40;i++) particles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,vx:(Math.random()-.5)*.5,vy:(Math.random()-.5)*.5,s:Math.random()*2});
+    function animate(){ ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>canvas.width)p.vx*=-1;if(p.y<0||p.y>canvas.height)p.vy*=-1;ctx.fillStyle='rgba(255,255,255,0.05)';ctx.beginPath();ctx.arc(p.x,p.y,p.s,0,Math.PI*2);ctx.fill()}); requestAnimationFrame(animate); }
     animate();
 
     // --- LOGIC ---
     let mode = 'gemini';
-    const dom = {
-        input: document.getElementById('prompt-in'),
-        chatFeed: document.getElementById('chat-feed'),
-        galleryFeed: document.getElementById('gallery-feed'),
-        loader: document.getElementById('loader'),
-        dock: document.getElementById('dock'),
-        sendBtn: document.getElementById('send-btn'),
-        header: document.getElementById('header-txt')
-    };
-
-    marked.setOptions({ highlight: (code, lang) => hljs.getLanguage(lang) ? hljs.highlight(code, { language: lang }).value : hljs.highlightAuto(code).value });
+    const dom = { input: document.getElementById('prompt-in'), chatFeed: document.getElementById('chat-feed'), galleryFeed: document.getElementById('gallery-feed'), loader: document.getElementById('loader'), dock: document.getElementById('dock'), sendBtn: document.getElementById('send-btn'), header: document.getElementById('header-txt') };
     
+    marked.setOptions({ highlight: (code, lang) => hljs.getLanguage(lang) ? hljs.highlight(code, { language: lang }).value : hljs.highlightAuto(code).value });
     dom.input.addEventListener('keydown', (e) => { if(e.key==='Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } });
     dom.input.addEventListener('input', function(){ this.style.height='auto'; this.style.height = Math.min(this.scrollHeight, 100) + 'px'; });
+
+    // --- FIX: MOBILE SIDEBAR TOGGLE ---
+    function toggleSidebar() {
+        const sb = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        sb.classList.toggle('open');
+        overlay.classList.toggle('active');
+    }
 
     function setMode(m) {
         mode = m;
@@ -414,6 +340,7 @@
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.getElementById(`view-${m}`).classList.add('active');
         
+        // UI Updates
         if (m === 'banana') {
             dom.header.innerText = 'Nano Banana Studio';
             dom.dock.classList.add('banana-mode');
@@ -427,6 +354,12 @@
             dom.input.placeholder = "Message...";
             dom.sendBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
         }
+
+        // --- AUTO CLOSE SIDEBAR ON MOBILE ---
+        if(window.innerWidth <= 768) {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sidebar-overlay').classList.remove('active');
+        }
     }
 
     async function handleSend() {
@@ -436,25 +369,20 @@
         playSound(600, 'sine');
 
         if(mode === 'gemini') {
-            addMsg('user', text);
-            dom.loader.style.display = 'flex';
+            addMsg('user', text); dom.loader.style.display = 'flex';
             try {
                 const res = await fetch(`https://api.xyro.site/ai/gemini?prompt=${encodeURIComponent(text)}`);
                 const data = await res.json();
-                const reply = data.result?.parts?.[0]?.text || data.response || "Error";
-                dom.loader.style.display = 'none';
-                addMsg('ai', reply);
-                playSound(800, 'sine');
-                if(document.getElementById('set-tts').checked) speak(reply);
+                const reply = data.result?.parts?.[0]?.text || "Error";
+                dom.loader.style.display = 'none'; addMsg('ai', reply); playSound(800, 'sine');
             } catch(e) { dom.loader.style.display='none'; addMsg('ai', "Connection Failed"); }
         } else {
             dom.loader.style.display = 'flex';
             setTimeout(() => {
                 const url = `https://api.xyro.site/ai/magic-studio?prompt=${encodeURIComponent(text)}`;
-                const img = new Image();
-                img.src = url;
+                const img = new Image(); img.src = url;
                 img.onload = () => { dom.loader.style.display='none'; addArt(url, text); playSound(800,'sine'); };
-                img.onerror = () => { dom.loader.style.display='none'; alert("Image Gen Failed"); };
+                img.onerror = () => { dom.loader.style.display='none'; alert("Failed"); };
             }, 500);
         }
     }
@@ -463,11 +391,10 @@
         const div = document.createElement('div'); div.className = 'msg';
         const av = role === 'ai' ? '<div class="avatar av-ai"><i class="fa-solid fa-robot"></i></div>' : '<div class="avatar av-user"><i class="fa-solid fa-user"></i></div>';
         div.innerHTML = `${av}<div class="bubble">${role==='ai'?marked.parse(text):text.replace(/\n/g,'<br>')}</div>`;
-        dom.chatFeed.appendChild(div);
-        dom.chatFeed.scrollTop = dom.chatFeed.scrollHeight;
+        dom.chatFeed.appendChild(div); dom.chatFeed.scrollTop = dom.chatFeed.scrollHeight;
     }
 
-    function addArt(url, prompt) {
+    function addArt(url, p) {
         const div = document.createElement('div'); div.className = 'art-card';
         div.innerHTML = `<img src="${url}" onclick="viewImage('${url}')"><div class="art-meta"><span>Art</span><i class="fa-solid fa-download" style="color:var(--banana)" onclick="downloadImg('${url}')"></i></div>`;
         dom.galleryFeed.insertBefore(div, dom.galleryFeed.firstChild);
@@ -476,24 +403,13 @@
     function openPrompts(){ document.getElementById('modal-prompts').style.display='flex'; }
     function toggleSettings(){ document.getElementById('modal-settings').style.display='flex'; }
     function closeModal(id){ document.getElementById(id).style.display='none'; }
-    function usePrompt(t){ closeModal('modal-prompts'); dom.input.value=t; dom.input.focus(); if(t.includes('(Image)')&&mode!=='banana')setMode('banana'); }
+    function usePrompt(t){ closeModal('modal-prompts'); dom.input.value=t; if(t.includes('Art'))setMode('banana'); else setMode('gemini'); }
     function viewImage(u){ document.getElementById('fs-img').src=u; document.getElementById('fs-dl').href=u; document.getElementById('modal-img').style.display='flex'; }
+    async function downloadImg(u) { try{const r=await fetch(u);const b=await r.blob();const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`Art-${Date.now()}.jpg`;document.body.appendChild(a);a.click();document.body.removeChild(a);}catch(e){window.open(u,'_blank');} }
+    function clearData() { if(confirm("Clear?")) { dom.chatFeed.innerHTML=''; dom.galleryFeed.innerHTML=''; } }
     
-    async function downloadImg(url) {
-        try { const r = await fetch(url); const b = await r.blob(); const a = document.createElement('a'); a.href=URL.createObjectURL(b); a.download=`Art-${Date.now()}.jpg`; document.body.appendChild(a); a.click(); document.body.removeChild(a); } catch(e){ window.open(url,'_blank'); }
-    }
-    function clearData() { if(confirm("Clear Chat?")) { dom.chatFeed.innerHTML=''; dom.galleryFeed.innerHTML=''; } }
-
     const ac = new (window.AudioContext||window.webkitAudioContext)();
-    function playSound(f,t) {
-        if(!document.getElementById('set-sound').checked)return;
-        const o=ac.createOscillator(), g=ac.createGain();
-        o.type=t; o.frequency.value=f; g.gain.setValueAtTime(0.05,ac.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.1);
-        o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime+0.1);
-    }
-    function speak(t) { const u = new SpeechSynthesisUtterance(t.replace(/[*#`]/g,'')); window.speechSynthesis.speak(u); }
-
+    function playSound(f,t) { if(!document.getElementById('set-sound').checked)return; const o=ac.createOscillator(),g=ac.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(0.05,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.1);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+0.1); }
 </script>
 </body>
 </html>
